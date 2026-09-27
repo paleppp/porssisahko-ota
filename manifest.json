@@ -1,8 +1,8 @@
 {
-  "version": "1.1.8",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.8.bin",
-  "sha256": "8073839794488041de1d58ee74b5aeaf3111af44402dbfd474d06be25efe0e82",
-  "sig": "MEQCIArSWLUETP8k9kLHdPEbYEEY1uhYjyOOn5jbZjqyxD/VAiAzBrqBON+ifsE4p4jT7l/xfM7Dtxys++HKcAk/YjTgZA==",
-  "size": 1769808,
-  "notes": "Uusi helpompi osoite asetussivulle: puhelimella porssi.local, tietokoneella porssi/ – laitteen nimen voi vaihtaa asetuksista (ääkköset muunnetaan). Asetussivulla näkyy nyt Mitä uutta -lista, josta näkee kunkin version muutokset."
+  "version": "1.1.9",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.9.bin",
+  "sha256": "cdbc0982c81c16ad1ea36eca3d54a1b6b900c000c99bb9662301c929c4f3ca73",
+  "sig": "MEYCIQC5MezHnj0eot8clgde77Fu6PvsOZWrH+wd5vbXDQ6/6wIhAMqNjO3IcMoeFa8wweDEKAidJ/HaCIeZ/jg04RoUTgfc",
+  "size": 1770480,
+  "notes": "Sulavampi näyttö: ruudunpäivitys lähes kaksinkertaistui (esim. hintanäkymä noin 18 → 33 kuvaa sekunnissa, useat näkymät 40)."
 }

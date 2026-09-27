@@ -1,8 +1,8 @@
 {
-  "version": "1.1.7",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.7.bin",
-  "sha256": "bfaf5765b0acc1c56915d02f1e379d91563791c96caff22e031dcde114de797c",
-  "sig": "MEUCIQDzKVq2tgE0CbyD66TLUKzZ9AOHn3xlJod2de4U4FErnQIgQYJL9jm2PwDCn9EXzIUMKsDsKQCQ4e6e38iDOAv2/v4=",
-  "size": 1757424,
-  "notes": "Tulevien hintojen selaus: tartu hintanäkymän kehän palloon ja pyöritä – irti päästäessä palaa nykyhetkeen."
+  "version": "1.1.8",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.8.bin",
+  "sha256": "8073839794488041de1d58ee74b5aeaf3111af44402dbfd474d06be25efe0e82",
+  "sig": "MEQCIArSWLUETP8k9kLHdPEbYEEY1uhYjyOOn5jbZjqyxD/VAiAzBrqBON+ifsE4p4jT7l/xfM7Dtxys++HKcAk/YjTgZA==",
+  "size": 1769808,
+  "notes": "Uusi helpompi osoite asetussivulle: puhelimella porssi.local, tietokoneella porssi/ – laitteen nimen voi vaihtaa asetuksista (ääkköset muunnetaan). Asetussivulla näkyy nyt Mitä uutta -lista, josta näkee kunkin version muutokset."
 }

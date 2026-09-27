@@ -1,0 +1,8 @@
+{
+  "version": "1.1.6",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.6.bin",
+  "sha256": "ca9778041890c67f27a368c1f5c9467fb97ccbd84679b1e2ca27f00df05f4613",
+  "sig": "MEUCICf2zdLoD5x3m6zcLxUXRxi0wMdVBpl95dFogqwyI2y5AiEAjkCThBUqYNwj10QVOfsJoTxwbKV5K/7Ovegk++jZ+j4=",
+  "size": 1753200,
+  "notes": "P\u00e4ivitykset suoraan ilman uudelleenohjauksia, asennus puhtaalta k\u00e4ynnistykselt\u00e4, y\u00f6llinen huoltok\u00e4ynnistys."
+}

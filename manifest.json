@@ -1,8 +1,8 @@
 {
-  "version": "1.1.6",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.6.bin",
-  "sha256": "ca9778041890c67f27a368c1f5c9467fb97ccbd84679b1e2ca27f00df05f4613",
-  "sig": "MEUCICf2zdLoD5x3m6zcLxUXRxi0wMdVBpl95dFogqwyI2y5AiEAjkCThBUqYNwj10QVOfsJoTxwbKV5K/7Ovegk++jZ+j4=",
-  "size": 1753200,
-  "notes": "P\u00e4ivitykset suoraan ilman uudelleenohjauksia, asennus puhtaalta k\u00e4ynnistykselt\u00e4, y\u00f6llinen huoltok\u00e4ynnistys."
+  "version": "1.1.7",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.7.bin",
+  "sha256": "bfaf5765b0acc1c56915d02f1e379d91563791c96caff22e031dcde114de797c",
+  "sig": "MEUCIQDzKVq2tgE0CbyD66TLUKzZ9AOHn3xlJod2de4U4FErnQIgQYJL9jm2PwDCn9EXzIUMKsDsKQCQ4e6e38iDOAv2/v4=",
+  "size": 1757424,
+  "notes": "Tulevien hintojen selaus: tartu hintanäkymän kehän palloon ja pyöritä – irti päästäessä palaa nykyhetkeen."
 }

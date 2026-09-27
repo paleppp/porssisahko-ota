@@ -1,8 +1,8 @@
 {
-  "version": "1.1.12",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.12.bin",
-  "sha256": "af5e69b6bdcf243ecf35bb36eaa2c6cf4cbdb6814dc5dc33b771a5b7db41b43a",
-  "sig": "MEUCIQCPnO3B9ptuLEijH04raRQGNPRAyPvxV/VL8KuDYgaPhwIgXYnDJgXpCoM8s/0Zywsc1Tu/HUwUZZQBNFcQ7O9834I=",
-  "size": 1881072,
-  "notes": "Viisi uutta 8-bittistä taustaa: Ukonilma (salama iskee yötaivaalla), Tasohyppely, Avaruushyökkäys, Palikat ja Matopeli. Pelitaustoissa hahmot pelaavat itse."
+  "version": "1.1.13",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.13.bin",
+  "sha256": "2398bd7dbc22252c01cb1ace0f82413d947a2ad505f16a7553e4ece4b6340128",
+  "sig": "MEUCIQD14LI2CKZsskgw8OivYENDNjK+NPu2BkdLbQiD0q7LzgIgSPPK6MSZD/Y8zawLcRNXbAl0McG8zEqKEDE8fodIjK8=",
+  "size": 1880928,
+  "notes": "Uusi asetus \"Omat väriportaat\": jopa 6 omaa hintarajaa omilla väreillä ja nimillä. Valitut portaat saavat sykkivän hehkun hinnan ympärille (esim. punahehku yli 30 c/kWh).\nUkonilma-taustan salama on nyt aina sinivioletti."
 }

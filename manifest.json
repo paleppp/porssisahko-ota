@@ -1,8 +1,8 @@
 {
-  "version": "1.1.13",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.13.bin",
-  "sha256": "2398bd7dbc22252c01cb1ace0f82413d947a2ad505f16a7553e4ece4b6340128",
-  "sig": "MEUCIQD14LI2CKZsskgw8OivYENDNjK+NPu2BkdLbQiD0q7LzgIgSPPK6MSZD/Y8zawLcRNXbAl0McG8zEqKEDE8fodIjK8=",
-  "size": 1880928,
-  "notes": "Uusi asetus \"Omat väriportaat\": jopa 6 omaa hintarajaa omilla väreillä ja nimillä. Valitut portaat saavat sykkivän hehkun hinnan ympärille (esim. punahehku yli 30 c/kWh).\nUkonilma-taustan salama on nyt aina sinivioletti."
+  "version": "1.1.14",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.14.bin",
+  "sha256": "42d56d8b237dd57e2453dc7b3672d098ef907801ed6c8c60b5afd970a05c337d",
+  "sig": "MEUCIA2lUhtwlMWl9FFifxjLF5l3ks1J7GEWqYOM13k/WJx2AiEAs9TJJm5xqJJ6fSgQWkhXZOpeN4zHL1VHoCODVVq3HTo=",
+  "size": 1881632,
+  "notes": "Hehkuva väriporras näkyy nyt myös hintakehän nykyisessä kohdassa, joka sykkii samaan tahtiin hinnan kanssa.\nOmien väriportaiden asetukset mahtuvat paremmin puhelimen näytölle."
 }

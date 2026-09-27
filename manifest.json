@@ -1,8 +1,8 @@
 {
-  "version": "1.1.11",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.11.bin",
-  "sha256": "591a1cb8646f032cf9bf994b4292b47b4c20adb7762f1109f6d4bed1a542d7b1",
-  "sig": "MEQCIBqyL1XvkhoiqmkwpD8zWAI2OONcULexcbqVf+8FE4F+AiAlJYRqehFQbxLyuHXySN45nNUlL1ZwpMspxljOZ6kyiA==",
-  "size": 1866288,
-  "notes": "Oma näkymä: uudet fontit (Ohut, 8-bittinen Pikseli ja Digitaali-LCD) sekä tekstitehosteet: varjo, hehku, ääriviiva ja neon.\nTekstiin voi lisäksi valita kursiivin, lihavoinnin, isot kirjaimet, liukuvärin ja kirjainvälin.\nUusi widgetti: analoginen kello.\nSynthwave-taustan auto on nyt isompi ja kirkkaampi."
+  "version": "1.1.12",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.12.bin",
+  "sha256": "af5e69b6bdcf243ecf35bb36eaa2c6cf4cbdb6814dc5dc33b771a5b7db41b43a",
+  "sig": "MEUCIQCPnO3B9ptuLEijH04raRQGNPRAyPvxV/VL8KuDYgaPhwIgXYnDJgXpCoM8s/0Zywsc1Tu/HUwUZZQBNFcQ7O9834I=",
+  "size": 1881072,
+  "notes": "Viisi uutta 8-bittistä taustaa: Ukonilma (salama iskee yötaivaalla), Tasohyppely, Avaruushyökkäys, Palikat ja Matopeli. Pelitaustoissa hahmot pelaavat itse."
 }

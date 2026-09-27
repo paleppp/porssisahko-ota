@@ -1,8 +1,8 @@
 {
-  "version": "1.1.10",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.10.bin",
-  "sha256": "aac75cfdc20c46a904195dcbf95fbbd6a77cfc57786e21697c3f64040fb0bfb3",
-  "sig": "MEUCICjkSJ1J/BcW6OhRp/8tyoc+dpxc2IRf1Jhd1y5AqwF3AiEA842gU77/3rxB0IHLMX06T3yeWGNzzO13ylUr4R8eCrE=",
-  "size": 1780624,
-  "notes": "Uudet 8-bittiset pikselitaustat: Pikselimetsä (revontulet ja järvi), Avaruus (rengasplaneetta ja avaruusalus), Nuotio, Digisade ja Pikselimeri (auringonlasku ja purjevene).\nSynthwave-taustan auto ajaa nyt kauempana, keskellä näyttöä."
+  "version": "1.1.11",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.11.bin",
+  "sha256": "591a1cb8646f032cf9bf994b4292b47b4c20adb7762f1109f6d4bed1a542d7b1",
+  "sig": "MEQCIBqyL1XvkhoiqmkwpD8zWAI2OONcULexcbqVf+8FE4F+AiAlJYRqehFQbxLyuHXySN45nNUlL1ZwpMspxljOZ6kyiA==",
+  "size": 1866288,
+  "notes": "Oma näkymä: uudet fontit (Ohut, 8-bittinen Pikseli ja Digitaali-LCD) sekä tekstitehosteet: varjo, hehku, ääriviiva ja neon.\nTekstiin voi lisäksi valita kursiivin, lihavoinnin, isot kirjaimet, liukuvärin ja kirjainvälin.\nUusi widgetti: analoginen kello.\nSynthwave-taustan auto on nyt isompi ja kirkkaampi."
 }

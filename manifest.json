@@ -1,8 +1,8 @@
 {
-  "version": "1.1.14",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.14.bin",
-  "sha256": "42d56d8b237dd57e2453dc7b3672d098ef907801ed6c8c60b5afd970a05c337d",
-  "sig": "MEUCIA2lUhtwlMWl9FFifxjLF5l3ks1J7GEWqYOM13k/WJx2AiEAs9TJJm5xqJJ6fSgQWkhXZOpeN4zHL1VHoCODVVq3HTo=",
-  "size": 1881632,
-  "notes": "Hehkuva väriporras näkyy nyt myös hintakehän nykyisessä kohdassa, joka sykkii samaan tahtiin hinnan kanssa.\nOmien väriportaiden asetukset mahtuvat paremmin puhelimen näytölle."
+  "version": "1.1.15",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.15.bin",
+  "sha256": "47799313d5546026266ec98b07c19e5e43f6d244ccda90cfad143671592f3cd6",
+  "sig": "MEQCIAt2DltY0Z+ZmaA8IZlrgrpM921Z6Nx2Xccn8siGoScDAiBQqd5NQc+HmjwNmTQGV7UETOYQiPepnL3F1mIW8nKAfA==",
+  "size": 1888896,
+  "notes": "Helpompi wifin käyttöönotto: puhelimeen aukeaa selkeä sivu, jossa kysytään yksi asia kerrallaan isoilla napeilla, ja salasana näkyy kirjaimina.\nUusi Pörssinäyttö-sovellus puhelimen kotinäytölle: asetukset aukeavat yhdellä napautuksella (Chromessa koko näytölle). Asetussivu tarjoaa asennusta.\nNäytön pitkän painalluksen QR-koodi avaa nyt puhelimen Pörssinäyttö-sovelluksen.\nKorjattu: asetustilan verkkohaku jäi joskus odottamaan loputtomiin."
 }

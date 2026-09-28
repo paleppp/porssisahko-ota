@@ -276,8 +276,9 @@ document.addEventListener('click',e=>{if(e.target.id==='appBannerNo'){try{localS
 // Served by the meter itself, API is empty and every request is a plain same-site one.
 const API=window.PORSSI_API||'';
 function F(u,o){o=o||{};if(API&&u.startsWith('/'))return fetch(API+u,Object.assign({targetAddressSpace:'local'},o));return fetch(u,o)}
-// opened from the launcher (?app=1): remember it, the install button is not needed any more
-function hasApp(){try{if(new URLSearchParams(location.search).has('app'))localStorage.setItem('hasApp','1');return localStorage.getItem('hasApp')==='1'}catch(e){return new URLSearchParams(location.search).has('app')}}
+// opened from the phone app (?app=1): no need to offer it. Only this visit counts: the page cannot
+// know whether the app is still on the phone later on.
+function hasApp(){try{localStorage.removeItem('hasApp')}catch(e){}return new URLSearchParams(location.search).has('app')}
 const PAGES=['Hinta nyt','Kaavio','Halvin aika','Päivän tilasto','Kello','Sää','Oma näkymä'];
 const WPCSS=['radial-gradient(circle at 50% 35%,#1b2338,#05070c)',
  'linear-gradient(170deg,#050b1a 30%,#1de9a0 60%,#7c3aed 75%,#050b1a)',

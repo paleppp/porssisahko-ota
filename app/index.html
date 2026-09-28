@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pörssinäyttö</title>
+<meta name="theme-color" content="#0f1318">
+<meta name="description" content="Pörssisähkö-näytön asetukset yhdellä napautuksella">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pörssinäyttö">
+<style>
+:root{--bg:#0f1318;--card:#171d24;--ink:#eef2f6;--muted:#a7b1bd;--line:#2b343e;--ac:#34d399;--ac-ink:#05281b;
+  font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:18px;line-height:1.45}
+main{max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 22px) 18px calc(env(safe-area-inset-bottom,0px) + 32px);display:flex;flex-direction:column;gap:18px}
+header{display:flex;align-items:center;gap:14px}
+header img{width:56px;height:56px;border-radius:14px}
+h1{font-size:26px;margin:0;line-height:1.15}
+h2{font-size:21px;margin:0;line-height:1.2}
+p{margin:0}
+.sub{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+button,.btn{font:inherit;cursor:pointer;display:block;width:100%;text-align:center;text-decoration:none;border-radius:16px;padding:18px;font-size:21px;font-weight:800;border:0}
+.pri{background:var(--ac);color:var(--ac-ink)}
+.sec{background:transparent;color:var(--ink);border:2px solid var(--line);font-size:18px;font-weight:700;padding:14px}
+ol{margin:0;padding-left:24px;display:flex;flex-direction:column;gap:6px}
+.small{font-size:15px;color:var(--muted)}
+code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <header><img src="icon-192.png" alt=""><div><h1>Pörssinäyttö</h1><p class="sub">Sähkön hinnan näytön asetukset</p></div></header>
+
+  <section class="card" id="noDev" hidden>
+    <h2>Skannaa ensin mittarin QR-koodi</h2>
+    <ol>
+      <li>Pidä mittarin näyttöä sormella pohjassa, kunnes QR-koodi tulee esiin.</li>
+      <li>Osoita koodia puhelimen kameralla ja napauta linkkiä.</li>
+    </ol>
+  </section>
+
+  <section class="card" id="install" hidden>
+    <h2>Lisää kuvake puhelimen kotinäytölle</h2>
+    <p class="sub">Jatkossa asetukset aukeavat yhdellä napautuksella, kuten muutkin sovellukset.</p>
+    <button class="pri" id="installBtn" type="button" hidden>Lisää kotinäytölle</button>
+    <div id="iosHelp" hidden><ol><li>Napauta alareunan <b>Jaa</b>-kuvaketta (neliö ja nuoli ylös).</li><li>Valitse <b>Lisää Koti-valikkoon</b>.</li><li>Napauta <b>Lisää</b>.</li></ol></div>
+    <div id="menuHelp" hidden><ol><li>Napauta selaimen oikean yläkulman valikkoa <b>⋮</b>.</li><li>Valitse <b>Asenna sovellus</b> tai <b>Lisää aloitusnäytölle</b>.</li></ol></div>
+  </section>
+
+  <section class="card" id="installed" hidden>
+    <h2>Valmis!</h2>
+    <p class="sub">Pörssinäyttö-kuvake on nyt kotinäytöllä. Avaa asetukset jatkossa siitä.</p>
+  </section>
+
+  <section class="card" id="open" hidden>
+    <a class="btn pri" id="openBtn" href="#">Avaa mittarin asetukset</a>
+    <a class="btn sec" id="localBtn" href="#">Kokeile osoitteella porssi.local</a>
+  </section>
+
+  <section class="card" id="help" hidden>
+    <h2>Jos asetukset eivät aukea</h2>
+    <ol>
+      <li>Varmista, että puhelin on samassa kotiwifissä kuin mittari.</li>
+      <li>Jos reititin on käynnistynyt uudelleen, mittarin osoite on voinut vaihtua. Pidä mittarin näyttöä pohjassa ja skannaa QR-koodi uudelleen, niin tämä sovellus päivittyy.</li>
+    </ol>
+    <p class="small">Tallennettu mittari: <code id="devAddr"></code></p>
+  </section>
+</main>
+<script>
+(function () {
+  const KEY = 'porssinaytto';
+  const $ = s => document.querySelector(s);
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } };
+  const save = d => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {} };
+  const validIp = s => /^(\d{1,3})(\.\d{1,3}){3}$/.test(s || '') && s.split('.').every(n => +n <= 255);
+  const validHost = s => /^[a-z0-9-]{1,32}$/.test(s || '');
+
+  // The meter's QR code carries its address in the #hash, which never leaves the phone.
+  let dev = load();
+  const hp = new URLSearchParams(location.hash.slice(1));
+  if (validIp(hp.get('ip'))) {
+    dev = { ip: hp.get('ip'), host: validHost(hp.get('h')) ? hp.get('h') : 'porssi', at: Date.now() };
+    save(dev);
+  }
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const url = dev ? 'http://' + dev.ip + '/' : null;
+
+  // Opened from the home screen icon: straight to the meter, once per launch
+  // (coming back to this page shows the menu instead of bouncing again).
+  if (standalone && url && !sessionStorage.getItem('went')) {
+    sessionStorage.setItem('went', '1');
+    location.replace(url);
+    return;
+  }
+
+  $('#noDev').hidden = !!dev;
+  $('#open').hidden = $('#help').hidden = !dev;
+  if (dev) {
+    $('#openBtn').href = url;
+    $('#localBtn').href = 'http://' + dev.host + '.local/';
+    $('#localBtn').textContent = 'Kokeile osoitteella ' + dev.host + '.local';
+    $('#devAddr').textContent = dev.ip + '  ·  ' + dev.host + '.local';
+  }
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if (standalone) return;
+
+  // Offer the home screen icon: Android/Chrome gives a one-tap install, iPhone needs the Share menu.
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  $('#install').hidden = !dev;
+  let deferred = null;
+  if (ios) $('#iosHelp').hidden = false;
+  else setTimeout(() => { if (!deferred) $('#menuHelp').hidden = false; }, 2500);
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferred = e;
+    $('#installBtn').hidden = false;
+    $('#menuHelp').hidden = true;
+  });
+  $('#installBtn').addEventListener('click', async () => {
+    if (!deferred) return;
+    deferred.prompt();
+    await deferred.userChoice.catch(() => {});
+    deferred = null;
+  });
+  window.addEventListener('appinstalled', () => {
+    $('#install').hidden = true;
+    $('#installed').hidden = false;
+  });
+})();
+</script>
+</body>
+</html>

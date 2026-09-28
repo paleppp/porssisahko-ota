@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<script>(function(){var b=null;try{b=sessionStorage.getItem('porssiApi')}catch(e){}if(!b){location.replace('./');return}window.PORSSI_API=b})();</script>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f1318">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<title>Pörssisähkö-näyttö</title>
+<style>
+:root{--bg:#0b1020;--card:#131a2e;--card2:#1a2340;--line:#27314f;--tx:#eef2fb;--tx2:#a9b3c9;--tx3:#6f7a93;--ac:hsl(200 85% 60%);--ok:#34d399;--warn:#fbbf24;--bad:#f87171;--r:18px}
+@media (prefers-color-scheme:light){:root{--bg:#f3f5fa;--card:#fff;--card2:#f1f4fa;--line:#dfe4ef;--tx:#101729;--tx2:#4b5670;--tx3:#8a93a8}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px 16px 90px}
+h1{font-size:22px;margin:4px 0 2px;letter-spacing:-.01em}
+h2{font-size:17px;margin:0}
+.sub{color:var(--tx2);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:14px 0;overflow:hidden}
+.card>summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;align-items:center;gap:12px;font-weight:600}
+.card>summary::-webkit-details-marker{display:none}
+.card>summary .ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--card2);font-size:18px;flex:none}
+.card>summary .chev{margin-left:auto;color:var(--tx3);transition:transform .2s}
+.card[open]>summary .chev{transform:rotate(90deg)}
+.body{padding:4px 18px 18px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row label{flex:1}
+.row small,.hint{display:block;color:var(--tx3);font-size:13px;font-weight:400}
+input[type=text],input[type=password],input[type=number],select{font:inherit;color:var(--tx);background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;min-height:46px;width:100%}
+input[type=number]{width:110px;text-align:right}
+select{width:auto;max-width:60%}
+input:focus,select:focus{outline:2px solid var(--ac);outline-offset:1px}
+input[type=range]{width:100%;accent-color:var(--ac);height:28px}
+.row label.sw,.sw{position:relative;width:52px;height:32px;flex:none}
+.sw input{opacity:0;width:0;height:0}
+.sw span{position:absolute;inset:0;background:var(--line);border-radius:20px;transition:.2s}
+.sw span:before{content:"";position:absolute;width:26px;height:26px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px #0005}
+.sw input:checked+span{background:var(--ac)}
+.sw input:checked+span:before{transform:translateX(20px)}
+button,.btn{font:inherit;font-weight:600;border:0;border-radius:14px;padding:12px 18px;min-height:48px;background:var(--card2);color:var(--tx);cursor:pointer;border:1px solid var(--line)}
+button.pri{background:var(--ac);color:#06101f;border-color:transparent}
+[hidden]{display:none!important}
+a.btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-top:14px}
+a.btn.pri{background:var(--ac);color:#06101f;border-color:transparent}
+button.danger{color:var(--bad)}
+button:disabled{opacity:.5}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.hero{display:flex;gap:18px;align-items:center;margin-top:8px}
+.screen{position:relative;width:150px;height:150px;flex:none;border-radius:50%;background:#000;box-shadow:0 0 0 6px #1f2740,0 12px 40px #0008;overflow:hidden}
+.screen canvas{width:100%;height:100%;display:block}
+.navb{display:flex;gap:8px;margin-top:10px}
+.navb button{min-height:40px;padding:6px 14px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 10px;border-radius:20px;background:var(--card2);color:var(--tx2)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--tx3)}
+.dot.ok{background:var(--ok)}.dot.bad{background:var(--bad)}
+.big{font-size:40px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.nets{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.net{display:flex;align-items:center;gap:10px;padding:13px 14px;border-radius:14px;background:var(--card2);border:1px solid var(--line);cursor:pointer;font-weight:500}
+.net.sel{outline:2px solid var(--ac)}
+.net .bars{margin-left:auto;color:var(--tx3);font-size:13px}
+.wps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.wp{height:0;padding-bottom:100%;border-radius:50%;border:3px solid transparent;cursor:pointer;position:relative;overflow:hidden;background:#000}
+.wp.sel{border-color:var(--ac)}
+.wp i{position:absolute;inset:0;background-size:200% 200%;animation:mv 8s ease-in-out infinite alternate}
+.wp b{position:absolute;left:0;right:0;bottom:16%;text-align:center;font-size:12px;color:#fff;text-shadow:0 1px 3px #000}
+@keyframes mv{from{background-position:0 0}to{background-position:100% 100%}}
+.pages{display:flex;flex-direction:column;gap:8px}
+.pg{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--card2);border:1px solid var(--line)}
+.pg .nm{flex:1;font-weight:500}
+.pg button{min-height:38px;padding:4px 12px}
+.hue{background:linear-gradient(90deg,hsl(0 80% 60%),hsl(60 80% 60%),hsl(120 80% 60%),hsl(180 80% 60%),hsl(240 80% 60%),hsl(300 80% 60%),hsl(360 80% 60%));border-radius:10px;height:14px;-webkit-appearance:none;appearance:none}
+.hue::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0008}
+#chart{width:100%;height:120px;display:block;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:#111827;color:#fff;padding:12px 18px;border-radius:14px;box-shadow:0 8px 30px #0008;transition:.25s;z-index:9;font-weight:500}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.wizard{border:2px solid var(--ac)}
+.muted{color:var(--tx3)}
+.res{white-space:pre-wrap;font-size:14px;background:var(--card2);border-radius:12px;padding:10px 12px;margin-top:10px;display:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:10px;font-size:14px;color:var(--tx2)}
+progress{width:100%;height:14px;accent-color:var(--ac)}
+a{color:var(--ac)}
+.steps{display:flex;flex-direction:column;gap:8px;margin:4px 0 10px}
+.steps .st{display:grid;grid-template-columns:22px 40px minmax(0,1fr) 62px 34px;gap:6px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--card2);border:1px solid var(--line)}
+.steps .st.off{opacity:.45}
+.steps input[type=color]{width:40px;height:34px;padding:0;border:0;background:none}
+.steps input[type=text]{min-width:0}
+.steps input[type=number]{width:62px;min-width:0;padding-left:6px;padding-right:4px}
+.steps input[type=text]{padding-left:8px;padding-right:6px}
+.steps .gl{font-size:13px;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.steps .hd{display:grid;grid-template-columns:22px 40px minmax(0,1fr) 62px 34px;gap:6px;font-size:12px;color:var(--tx3);padding:0 10px}
+.steps .sw2{width:20px;height:20px}
+.steps .demo{height:10px;border-radius:5px;margin:2px 10px 0}
+.rel{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.rel .it{padding:12px 14px;border-radius:14px;background:var(--card2);border:1px solid var(--line)}
+.rel .hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700}
+.rel .tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--line);color:var(--tx2)}
+.rel .tag.on{background:var(--ac);color:#06101f}
+.rel .dt{margin-left:auto;font-size:13px;font-weight:400;color:var(--tx3)}
+.rel .nt{margin-top:6px;font-size:14px;color:var(--tx2);white-space:pre-line}
+@media (min-width:980px){
+ main{max-width:1120px;display:grid;grid-template-columns:330px minmax(0,1fr);column-gap:32px;align-items:start}
+ main>*{grid-column:2}
+ .hero{grid-column:1;grid-row:1/span 30;position:sticky;top:20px;flex-direction:column;align-items:stretch;gap:14px}
+ .hero>div:first-child{display:flex;flex-direction:column;align-items:center}
+ .screen{width:300px;height:300px}
+ .navb{justify-content:center}
+ .card{margin:0 0 14px}
+}
+.wed{display:flex;justify-content:center;margin:12px 0 4px}
+#wcv{touch-action:none;border-radius:50%;box-shadow:0 0 0 5px #1f2740,0 10px 30px #0007;cursor:grab;display:block}
+.pg.sel{outline:2px solid var(--ac)}
+.pg .sub2{display:block;font-size:12px;color:var(--tx3);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.prop{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:12px;padding:14px;border-radius:14px;background:var(--card2);border:1px solid var(--line)}
+.prop label{display:flex;flex-direction:column;font-size:13px;color:var(--tx2);gap:4px;min-width:0}
+.prop .full{grid-column:1/-1}
+.prop select{max-width:100%;width:100%}
+.prop input[type=text]{width:100%}
+input[type=color]{width:100%;height:46px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:4px}
+.chk{flex-direction:row!important;align-items:center;gap:8px!important}
+</style>
+</head>
+<body>
+<main>
+  <div class="hero">
+    <div>
+      <div class="screen"><canvas id="scr" width="240" height="240"></canvas></div>
+      <div class="navb"><button onclick="page(-1)" aria-label="Edellinen">◀</button><button onclick="page(1)" aria-label="Seuraava">▶</button></div>
+    </div>
+    <div style="min-width:0">
+      <h1>Pörssisähkö</h1>
+      <div id="stat" class="chip"><span class="dot"></span><span>Yhdistetään…</span></div>
+      <div id="priceNow" style="margin-top:10px"></div>
+      <a id="homeBtn" class="btn pri" hidden target="_blank" rel="noopener">📲 Lisää kotinäytölle</a>
+    </div>
+  </div>
+
+  <!-- setup wizard (shown in setup mode) -->
+  <section id="wizard" class="card wizard" style="display:none"><div class="body" style="padding-top:18px">
+    <h2>Yhdistä laite kotiverkkoon</h2>
+    <p class="sub">Valitse oma wifi-verkkosi listasta ja kirjoita sen salasana. Tämä tehdään vain kerran.</p>
+    <div id="wNets" class="nets"><div class="muted">Etsitään verkkoja…</div></div>
+    <button onclick="scan(true)">↻ Etsi uudelleen</button>
+    <div class="field">Verkon nimi<input id="wSsid" type="text" autocomplete="off" autocapitalize="none" placeholder="esim. Koti-wifi"></div>
+    <div class="field">Salasana<input id="wPass" type="password" autocomplete="current-password" placeholder="wifi-salasana"></div>
+    <label class="hint" style="margin-top:8px"><input type="checkbox" onchange="wPass.type=this.checked?'text':'password'"> Näytä salasana</label>
+    <div class="btns"><button class="pri" style="flex:1" onclick="joinWifi()">Yhdistä</button></div>
+    <div id="wMsg" class="res"></div>
+  </div></section>
+
+  <details class="card" id="cPrice" open><summary><span class="ic">⚡</span>Hinta<span class="chev">›</span></summary><div class="body">
+    <canvas id="chart" width="600" height="120"></canvas>
+    <div class="row"><label>Hintalähde<small id="srcDesc"></small></label><select id="source" data-k="source" data-num></select></div>
+    <div class="row"><label>Varalähteet<small>Jos lähde ei vastaa, kokeillaan muita automaattisesti</small></label><label class="sw"><input type="checkbox" data-k="fallback"><span></span></label></div>
+    <div class="row"><label>Näytä hinta ALV:n kanssa</label><label class="sw"><input type="checkbox" data-k="showVat"><span></span></label></div>
+    <div class="row"><label>ALV %</label><input type="number" step="0.1" data-k="vat"></div>
+    <div class="row"><label>Lisää marginaali<small>Sähkösopimuksen marginaali, c/kWh (sis. alv)</small></label><label class="sw"><input type="checkbox" data-k="addMargin"><span></span></label></div>
+    <div class="row"><label>Marginaali c/kWh</label><input type="number" step="0.01" data-k="margin"></div>
+    <div class="row"><label>Lisää siirtomaksu<small>Siirto + sähkövero, c/kWh</small></label><label class="sw"><input type="checkbox" data-k="addTransfer"><span></span></label></div>
+    <div class="row"><label>Siirtomaksu c/kWh</label><input type="number" step="0.01" data-k="transfer"></div>
+    <div class="row"><label>Hintajakso</label><select data-k="resolution" data-num><option value="0">15 minuuttia</option><option value="1">Tunti (keskiarvo)</option></select></div>
+    <div class="row"><label>Omat väriportaat<small>Jopa 6 hintarajaa omilla väreillä, nimillä ja hehkulla</small></label><label class="sw"><input type="checkbox" data-k="customSteps" id="stepsOn"><span></span></label></div>
+    <div id="stepsBox" class="steps"></div>
+    <div class="row lvl"><label>Hintatasot</label><select data-k="levelMode" data-num><option value="0">Kiinteät rajat</option><option value="1">Suhteessa päivän keskiarvoon</option></select></div>
+    <div class="row lvl"><label>Halpa alle (c/kWh)</label><input type="number" step="0.5" data-k="cheapBelow"></div>
+    <div class="row lvl"><label>Kallis yli (c/kWh)</label><input type="number" step="0.5" data-k="expensiveAbove"></div>
+    <div class="row"><label>Desimaalit</label><select data-k="decimals" data-num><option>0</option><option>1</option><option>2</option><option>3</option></select></div>
+    <div class="btns"><button onclick="testSrc()">Testaa lähde</button><button onclick="post('/api/refresh');toast('Päivitetään hinnat…')">Päivitä hinnat nyt</button></div>
+    <div id="testRes" class="res"></div>
+  </div></details>
+
+  <details class="card"><summary><span class="ic">🎨</span>Taustakuva<span class="chev">›</span></summary><div class="body">
+    <div class="wps" id="wps"></div>
+    <div class="row" style="margin-top:8px"><label>Väri seuraa hintaa<small>Vihreä = halpa, punainen = kallis</small></label><label class="sw"><input type="checkbox" data-k="wpTint"><span></span></label></div>
+    <div class="row"><label>Nopeus</label><div style="width:55%"><input type="range" min="0" max="100" data-k="wpSpeed" data-num></div></div>
+    <div class="row"><label>Kirkkaus</label><div style="width:55%"><input type="range" min="10" max="100" data-k="wpBright" data-num></div></div>
+    <div class="row"><label>Värien syvyys<small>Vasen = hillitty, oikea = voimakas</small></label><div style="width:55%"><input type="range" min="0" max="100" data-k="wpSat" data-num></div></div>
+    <div class="row"><label>Teemaväri</label><div style="width:55%"><input class="hue" type="range" min="0" max="359" data-k="accentHue" data-num></div></div>
+    <div class="row"><label>Hintavärit</label><select data-k="palette" data-num><option value="0">Klassinen</option><option value="1">Pehmeä</option><option value="2">Värisokeille sopiva</option></select></div>
+    <div class="row"><label>Ruudunpäivitys<small>Pienempi = vähemmän virtaa</small></label><select data-k="fps" data-num><option value="15">15 fps</option><option value="20">20 fps</option><option value="25">25 fps</option><option value="30">30 fps</option><option value="40">40 fps</option></select></div>
+  </div></details>
+
+  <details class="card"><summary><span class="ic">🧭</span>Näkymät<span class="chev">›</span></summary><div class="body">
+    <p class="hint" style="margin-top:0">Näytössä näkymää vaihdetaan napauttamalla tai pyyhkäisemällä. Pitkä painallus näyttää asetusten osoitteen.</p>
+    <div class="pages" id="pages"></div>
+    <div class="row" style="margin-top:8px"><label>Vaihda näkymää automaattisesti</label><select data-k="cycleSec" data-num><option value="0">Ei</option><option value="10">10 s</option><option value="20">20 s</option><option value="30">30 s</option><option value="60">1 min</option><option value="300">5 min</option></select></div>
+    <div class="row"><label>Halvin jakso<small>Esim. sauna tai pyykinpesu</small></label><select data-k="windowHours" data-num><option value="1">1 h</option><option value="2">2 h</option><option value="3">3 h</option><option value="4">4 h</option><option value="5">5 h</option><option value="6">6 h</option><option value="8">8 h</option></select></div>
+    <div class="row"><label>Kaavion pituus</label><select data-k="chartHours" data-num><option value="6">6 h</option><option value="12">12 h</option><option value="24">24 h</option><option value="36">36 h</option><option value="48">48 h</option></select></div>
+    <div class="row"><label>Sekuntiosoitin kellossa</label><label class="sw"><input type="checkbox" data-k="clockSeconds"><span></span></label></div>
+  </div></details>
+
+  <details class="card" id="cCustom"><summary><span class="ic">🧩</span>Oma näkymä<span class="chev">›</span></summary><div class="body">
+    <p class="hint" style="margin-top:0">Rakenna oma näkymä widgeteistä, kuten puhelimen kotinäytöllä. Napauta widgettiä valitaksesi sen ja raahaa se sormella paikalleen. Laite näyttää muutokset heti.</p>
+    <div class="row"><label>Näytä laitteessa<small>Lisää Oma näkymä näkymien joukkoon</small></label><label class="sw"><input type="checkbox" id="custOn"><span></span></label></div>
+    <div class="wed"><canvas id="wcv"></canvas></div>
+    <div class="btns"><select id="wAddT" style="flex:1;max-width:none"></select><button class="pri" onclick="wAdd()">+ Lisää</button></div>
+    <div id="wProps"></div>
+    <div class="pages" id="wList" style="margin-top:12px"></div>
+    <div class="hint" style="margin-top:14px">Valmiit pohjat (korvaa nykyiset widgetit)</div>
+    <div class="btns" id="wPresets"></div>
+  </div></details>
+
+  <details class="card"><summary><span class="ic">💡</span>Näyttö<span class="chev">›</span></summary><div class="body">
+    <div class="row"><label>Kirkkaus</label><div style="width:55%"><input type="range" min="3" max="100" data-k="brightness" data-num></div></div>
+    <div class="row"><label>Yötila<small>Himmennä näyttö yöksi</small></label><label class="sw"><input type="checkbox" data-k="nightMode"><span></span></label></div>
+    <div class="row"><label>Yöllä kirkkaus<small>0 = näyttö pimeänä (kosketus herättää)</small></label><div style="width:55%"><input type="range" min="0" max="100" data-k="nightBrightness" data-num></div></div>
+    <div class="row"><label>Yö alkaa</label><select data-k="nightStart" data-num id="ns"></select></div>
+    <div class="row"><label>Yö päättyy</label><select data-k="nightEnd" data-num id="ne"></select></div>
+    <div class="row"><label>Näytön asento</label><select data-k="rotation" data-num><option value="0">0°</option><option value="1">90°</option><option value="2">180°</option><option value="3">270°</option></select></div>
+  </div></details>
+
+  <details class="card"><summary><span class="ic">⛅</span>Sää<span class="chev">›</span></summary><div class="body">
+    <div class="row"><label>Näytä sää<small>Open-Meteo, ei vaadi rekisteröitymistä</small></label><label class="sw"><input type="checkbox" data-k="weather"><span></span></label></div>
+    <div class="field">Paikkakunta<div style="display:flex;gap:8px"><input id="city" type="text" data-k="city" placeholder="esim. Tampere"><button onclick="geo()">Hae</button></div></div>
+    <div id="geoRes" class="nets"></div>
+    <div class="grid2"><div class="field">Leveysaste<input type="number" step="0.0001" data-k="lat" style="width:100%"></div><div class="field">Pituusaste<input type="number" step="0.0001" data-k="lon" style="width:100%"></div></div>
+  </div></details>
+
+  <details class="card"><summary><span class="ic">📶</span>Wifi<span class="chev">›</span></summary><div class="body">
+    <div class="row"><label>Verkko<small id="wifiNow"></small></label><button onclick="showWizard()">Vaihda verkkoa</button></div>
+    <div class="row"><label>Laitteen nimi verkossa<small>Puhelimella <b><span id="hn"></span>.local</b> · tietokoneella <b><span id="hn2"></span>/</b></small></label><input type="text" data-k="hostname" style="width:45%"></div>
+  </div></details>
+
+  <details class="card"><summary><span class="ic">🧩</span>Oma rajapinta &amp; ENTSO-E<span class="chev">›</span></summary><div class="body">
+    <p class="hint" style="margin-top:0">Valitse hintalähteeksi <b>Oma rajapinta</b> ja määritä JSON-rajapinta alla. Osoitteessa voi käyttää paikkamerkkejä <code>{start}</code>, <code>{end}</code> (ISO, UTC), <code>{date}</code> (vvvv-kk-pp) ja <code>{start_ymd}</code>/<code>{end_ymd}</code>.</p>
+    <div class="btns" id="presets"></div>
+    <div class="field">Osoite (URL)<input type="text" data-k="custom.url" placeholder="https://…"></div>
+    <div class="grid2">
+      <div class="field">Taulukon polku<input type="text" data-k="custom.arrayPath" placeholder="esim. prices (tyhjä = juuri)"></div>
+      <div class="field">Aikakenttä<input type="text" data-k="custom.timeField" placeholder="esim. startDate"></div>
+      <div class="field">Hintakenttä<input type="text" data-k="custom.priceField" placeholder="esim. price"></div>
+      <div class="field">Ajan muoto<select data-k="custom.timeFmt" data-num style="max-width:100%"><option value="0">ISO-8601</option><option value="1">Unix (s)</option><option value="2">Unix (ms)</option></select></div>
+      <div class="field">Yksikkö<select data-k="custom.unit" data-num style="max-width:100%"><option value="0">€/MWh</option><option value="1">€/kWh</option><option value="2">c/kWh</option></select></div>
+      <div class="field">Sis. ALV<select data-k="custom.vatIncluded" data-bool style="max-width:100%"><option value="false">Ei</option><option value="true">Kyllä</option></select></div>
+    </div>
+    <div class="row" style="margin-top:6px"><label>Haetaan päivä kerrallaan<small>Kun osoitteessa on {date}</small></label><label class="sw"><input type="checkbox" data-k="custom.perDay"><span></span></label></div>
+    <div class="field">ENTSO-E API-avain<input type="password" data-k="entsoeToken" placeholder="security token"><small class="hint">Ilmaisen avaimen saa rekisteröitymällä transparency.entsoe.eu -palveluun.</small></div>
+  </div></details>
+
+  <details class="card"><summary><span class="ic">⚙️</span>Laite<span class="chev">›</span></summary><div class="body">
+    <div class="row"><label>Versio</label><span id="fw" class="muted"></span></div>
+    <div class="row"><label>Automaattiset päivitykset<small>Tarkistetaan öisin klo 3–5, vain allekirjoitetut versiot</small></label><label class="sw"><input type="checkbox" data-k="autoUpdate"><span></span></label></div>
+    <div class="row"><label>Päivitykset<small id="updSt">–</small></label><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button onclick="updCheck(false)">Tarkista nyt</button><button id="updInst" class="pri" style="display:none" onclick="updCheck(true)">Asenna</button></div></div>
+    <div class="row"><label>Tila</label><span id="diag" class="muted" style="text-align:right;font-size:13px"></span></div>
+    <div class="row" style="border-bottom:0"><label>Mitä uutta<small>Viimeisimmät versiot suoraan GitHubista</small></label><a id="relAll" href="#" target="_blank" rel="noopener" style="font-size:14px">Kaikki versiot</a></div>
+    <div class="rel" id="relList"><div class="muted">Ladataan…</div></div>
+    <div class="row"><label>Päivitä tiedostosta<small>Valitse .bin-tiedosto</small></label><input type="file" id="fwf" accept=".bin" style="max-width:50%"></div>
+    <progress id="fwp" value="0" max="100" style="display:none"></progress>
+    <div class="btns">
+      <button onclick="doUpdate()">Päivitä ohjelmisto</button>
+      <button onclick="post('/api/identify')">Tunnista laite</button>
+      <button onclick="if(confirm('Käynnistetäänkö laite uudelleen?'))post('/api/reboot')">Käynnistä uudelleen</button>
+      <button class="danger" onclick="if(confirm('Palautetaanko KAIKKI asetukset tehdasasetuksiin? Myös wifi-asetukset poistetaan.'))post('/api/factory-reset')">Tehdasasetukset</button>
+    </div>
+    <p class="hint">Kotiautomaatiolle: <a href="/api/now">/api/now</a> ja <a href="/api/prices">/api/prices</a> (JSON).</p>
+  </div></details>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let C={}, S={}, loaded=false, saveT=0, selSsid='';
+const APP_URL='https://paleppp.github.io/porssisahko-ota/app/';  // home screen launcher (app/)
+// Inside the home screen app this page runs on HTTPS and talks to the meter over the local
+// network: Chrome allows that (after a one-time permission) for requests marked as local.
+// Served by the meter itself, API is empty and every request is a plain same-site one.
+const API=window.PORSSI_API||'';
+function F(u,o){o=o||{};if(API&&u.startsWith('/'))return fetch(API+u,Object.assign({targetAddressSpace:'local'},o));return fetch(u,o)}
+// opened from the launcher (?app=1): remember it, the install button is not needed any more
+function hasApp(){try{if(new URLSearchParams(location.search).has('app'))localStorage.setItem('hasApp','1');return localStorage.getItem('hasApp')==='1'}catch(e){return new URLSearchParams(location.search).has('app')}}
+const PAGES=['Hinta nyt','Kaavio','Halvin aika','Päivän tilasto','Kello','Sää','Oma näkymä'];
+const WPCSS=['radial-gradient(circle at 50% 35%,#1b2338,#05070c)',
+ 'linear-gradient(170deg,#050b1a 30%,#1de9a0 60%,#7c3aed 75%,#050b1a)',
+ 'linear-gradient(135deg,#34d399,#6366f1,#0ea5e9,#34d399)',
+ 'linear-gradient(180deg,#0b1020 45%,#0e7490 60%,#34d399 75%,#064e3b)',
+ 'linear-gradient(45deg,#7c3aed,#0ea5e9,#34d399,#f59e0b,#7c3aed)',
+ 'radial-gradient(circle,#fff 0 1px,transparent 2px) 0 0/22px 22px,radial-gradient(#1e293b,#02040a)',
+ 'radial-gradient(circle at 30% 70%,#34d39988 0 18%,transparent 19%),radial-gradient(circle at 70% 30%,#60a5fa88 0 14%,transparent 15%),linear-gradient(135deg,#0f172a,#1e1b4b)',
+ 'radial-gradient(circle,#34d39955,#02040a 70%)',
+ 'linear-gradient(120deg,#34d399,#1e3a8a)',
+ 'linear-gradient(180deg,#1c0e48 0%,#cd3a78 45%,#ff8a34 62%,#ffd682 68%,#2a1030 70%,#120a28)',
+ 'radial-gradient(circle at 40% 35%,#f472b6 0 18%,transparent 19%),radial-gradient(circle at 60% 70%,#fb923c 0 22%,transparent 23%),linear-gradient(#1e1033,#3b1450)',
+ 'conic-gradient(from 0deg,#7c3aed,#0ea5e9,#34d399,#f59e0b,#ec4899,#7c3aed)',
+ 'radial-gradient(circle,#fff 0 1.5px,transparent 2px) 0 0/18px 22px,linear-gradient(#040a1e,#22325a)',
+ 'radial-gradient(circle at 30% 40%,#d9f99d 0 2px,#a3e63555 3px,transparent 9px),radial-gradient(circle at 70% 65%,#d9f99d 0 2px,#a3e63555 3px,transparent 9px),linear-gradient(#03080a,#12301f)',
+ 'repeating-linear-gradient(105deg,transparent 0 9px,#c8d7f055 9px 10px),radial-gradient(circle at 30% 70%,#fbbf2466,transparent 40%),linear-gradient(#0a0e18,#1a2030)',
+ 'radial-gradient(ellipse at 40% 45%,#c084fc 0,#6d28d9 25%,transparent 55%),radial-gradient(ellipse at 70% 60%,#22d3ee88,transparent 45%),#03020c',
+ 'radial-gradient(circle at 50% 50%,#ffd23f 0 12%,#ff5a8a 20%,transparent 21%) 0 -6px/100% 100% no-repeat,repeating-linear-gradient(0deg,#ff2ea6 0 1px,transparent 1px 8px) 0 55%/100% 45% no-repeat,linear-gradient(#120a2e 0,#5c1870 45%,#ff78aa 50%,#140a28 51%)',
+ 'linear-gradient(#0a1030 0,#123046 40%,#2de39a 44%,#123046 50%,#081422 60%,#050d14 62%,#0b2233)',
+ 'radial-gradient(circle at 68% 30%,#f0b070 0 14%,#6a3a2a 15%,transparent 16%),radial-gradient(circle,#fff 0 1px,transparent 2px) 0 0/16px 16px,#02020a',
+ 'linear-gradient(0deg,#fff5c0 0,#ffb030 20%,#d04008 42%,#400808 60%,#070707 72%)',
+ 'repeating-linear-gradient(90deg,#28c864 0 3px,transparent 3px 8px),linear-gradient(#000804,#0a3018 60%,#000804)',
+ 'radial-gradient(circle at 50% 54%,#ffeba0 0 12%,transparent 13%),linear-gradient(#28144a 0,#c85064 35%,#ffa046 52%,#321e54 55%,#1e1432)',
+ 'linear-gradient(115deg,transparent 46%,#fff 47% 49%,transparent 50%),linear-gradient(#1a1a30 0,#3c3a5a 30%,#0c0f24 32%,#070914 78%,#03050a 80%)',
+ 'linear-gradient(#374c9c 0,#6482c8 70%,#5ad25a 70% 73%,#be5528 73%)',
+ 'radial-gradient(circle,#ff5ac8 0 3px,transparent 4px) 4px 6px/16px 14px,radial-gradient(circle at 50% 88%,#50ffc8 0 6px,transparent 7px),#02020a',
+ 'linear-gradient(#0000 60%,#e63c3c 60% 70%,#3c5ae6 70% 80%,#f0d228 80%) 50% 0/46% 100% no-repeat,linear-gradient(90deg,#06061a 25%,#5a5a78 25% 27%,#0c0c1c 27% 73%,#5a5a78 73% 75%,#06061a 75%)',
+ 'repeating-conic-gradient(#0a2814 0 25%,#0e341a 0 50%) 0 0/16px 16px'];
+const PRESETS=[
+ ['spot-hinta.fi',{url:'https://api.spot-hinta.fi/TodayAndDayForward',arrayPath:'',timeField:'DateTime',priceField:'PriceNoTax',timeFmt:0,unit:1,vatIncluded:false,perDay:false}],
+ ['Pörssisähkö.net',{url:'https://api.porssisahko.net/v2/latest-prices.json',arrayPath:'prices',timeField:'startDate',priceField:'price',timeFmt:0,unit:2,vatIncluded:true,perDay:false}],
+ ['Sähkötin',{url:'https://sahkotin.fi/prices?quarter&start={start}&end={end}',arrayPath:'prices',timeField:'date',priceField:'value',timeFmt:0,unit:0,vatIncluded:false,perDay:false}],
+ ['Elering',{url:'https://dashboard.elering.ee/api/nps/price?start={start}&end={end}',arrayPath:'data.fi',timeField:'timestamp',priceField:'price',timeFmt:1,unit:0,vatIncluded:false,perDay:false}],
+ ['Nord Pool',{url:'https://dataportal-api.nordpoolgroup.com/api/DayAheadPrices?date={date}&market=DayAhead&deliveryArea=FI&currency=EUR',arrayPath:'multiAreaEntries',timeField:'deliveryStart',priceField:'entryPerArea.FI',timeFmt:0,unit:0,vatIncluded:false,perDay:true}]];
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2200)}
+async function j(u,o){const r=await F(u,o);return r.json()}
+function post(u,b){return F(u,{method:'POST',headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):'{}'})}
+function page(d){post('/api/page?dir='+d);setTimeout(snap,450)}
+const get=(o,k)=>k.split('.').reduce((a,p)=>a==null?a:a[p],o);
+function set(o,k,v){const p=k.split('.');let a=o;while(p.length>1){const x=p.shift();a=a[x]=a[x]||{}}a[p[0]]=v}
+const fmt=(v,d=2)=>v==null?'–':v.toFixed(d).replace('.',',');
+
+function bind(){
+  $$('[data-k]').forEach(el=>{
+    const k=el.dataset.k,v=get(C,k);
+    if(el.type==='checkbox')el.checked=!!v;else if(v!==undefined)el.value=String(v);
+    el.oninput=el.onchange=()=>{
+      let v=el.type==='checkbox'?el.checked:el.value;
+      if('num' in el.dataset)v=parseInt(v);else if(el.type==='number')v=parseFloat(String(v).replace(',','.'));
+      if('bool' in el.dataset)v=v==='true';
+      set(C,k,v);if(k==='source')srcDesc();if(k==='customSteps')stepsUI();if(k==='accentHue')hue();if(k==='hostname'){$('#hn').textContent=v;$('#hn2').textContent=v}
+      schedule(el.type==='range'||el.type==='text'||el.type==='password'||el.type==='number'?500:50);
+    };
+  });
+  $('#hn').textContent=C.hostname;$('#hn2').textContent=C.hostname;hue();srcDesc();pagesUI();wpUI();stepsUI();
+}
+// ---------------------------------------------------------------- own colour steps
+function stepsUI(){
+  const on=!!C.customSteps,box=$('#stepsBox');$$('.row.lvl').forEach(r=>r.style.display=on?'none':'');
+  if(!on){box.innerHTML='';return}
+  const st=C.steps||[];
+  box.innerHTML='<div class="hd"><span></span><span>Väri</span><span>Nimi</span><span>Alkaen c</span><span>Hehku</span></div>'+
+    st.map((s,i)=>`<div class="st${s.on?'':' off'}" data-i="${i}"><input class="sw2" type="checkbox" data-s="on" ${s.on?'checked':''}>
+    <input type="color" data-s="c" value="${s.c}"><input type="text" maxlength="15" data-s="n" value="${esc(s.n)}" placeholder="Nimi">
+    <input type="number" step="0.5" data-s="f" value="${s.f}"><label class="gl"><input type="checkbox" data-s="g" ${s.g?'checked':''}>✨</label></div>`).join('')+
+    '<div class="demo" id="stepsDemo"></div><p class="hint">Hinta saa sen värin, jonka raja on sama tai pienempi. Rajan alittavat hinnat käyttävät pienintä väriä, ja negatiiviset hinnat näkyvät sinisinä. ✨ = hinta hehkuu näytöllä sykkien.</p>';
+  box.querySelectorAll('[data-s]').forEach(el=>{el.oninput=el.onchange=()=>{const s=st[+el.closest('.st').dataset.i],k=el.dataset.s;
+    s[k]=el.type==='checkbox'?el.checked:el.type==='number'?parseFloat(String(el.value).replace(',','.'))||0:el.value;
+    if(k==='on')el.closest('.st').classList.toggle('off',!s.on);stepsDemo();schedule(el.type==='checkbox'||el.type==='color'?50:600)}});
+  stepsDemo();
+}
+function stepCol(v){const st=(C.steps||[]).filter(s=>s.on);if(!C.customSteps||!st.length||v<0)return null;
+  let best=null,low=null;st.forEach(s=>{if(!low||s.f<low.f)low=s;if(v>=s.f&&(!best||s.f>best.f))best=s});return(best||low).c}
+function stepsDemo(){const d=$('#stepsDemo');if(!d)return;const mx=Math.max(10,...(C.steps||[]).filter(s=>s.on).map(s=>s.f))*1.25;
+  const stops=[];for(let i=0;i<=60;i++){const v=mx*i/60;stops.push(`${stepCol(v)} ${(i/60*100).toFixed(1)}%`)}d.style.background=`linear-gradient(90deg,${stops.join(',')})`;
+  d.title='0 – '+mx.toFixed(0)+' c/kWh'}
+function schedule(ms){clearTimeout(saveT);saveT=setTimeout(save,ms)}
+async function save(){const b=Object.assign({},C);delete b.widgets;delete b.ssid;delete b.hasPass;await post('/api/config',b);toast('Tallennettu ✓');setTimeout(snap,300)}
+function hue(){document.documentElement.style.setProperty('--ac',`hsl(${C.accentHue} 85% 60%)`)}
+function srcDesc(){const s=(S.sources||[])[C.source];$('#srcDesc').textContent=s?s.desc:''}
+
+function pagesUI(){
+  const box=$('#pages');box.innerHTML='';
+  const on=C.pages||[];const all=[...on,...[0,1,2,3,4,5,6].filter(i=>!on.includes(i))];
+  all.forEach((id,i)=>{
+    const en=on.includes(id);const d=document.createElement('div');d.className='pg';
+    d.innerHTML=`<label class="sw"><input type="checkbox" ${en?'checked':''}><span></span></label><span class="nm" style="opacity:${en?1:.5}">${PAGES[id]}</span><button ${i==0?'disabled':''}>↑</button><button ${i==all.length-1?'disabled':''}>↓</button>`;
+    const [cb]=d.querySelectorAll('input'),[up,dn]=d.querySelectorAll('button');
+    cb.onchange=()=>{C.pages=cb.checked?[...on,id]:on.filter(x=>x!==id);if(!C.pages.length)C.pages=[0];pagesUI();schedule(50)};
+    const mv=dir=>{const a=all.slice();[a[i],a[i+dir]]=[a[i+dir],a[i]];C.pages=a.filter(x=>on.includes(x));pagesUI();schedule(50)};
+    up.onclick=()=>mv(-1);dn.onclick=()=>mv(1);box.appendChild(d);
+  });
+  const co=$('#custOn');if(co)co.checked=(C.pages||[]).includes(6);
+}
+function wpUI(){
+  const box=$('#wps');box.innerHTML='';
+  (S.wallpapers||[]).forEach((n,i)=>{const d=document.createElement('div');d.className='wp'+(C.wallpaper==i?' sel':'');
+    d.innerHTML=`<i style="background:${WPCSS[i]||'#000'}"></i><b>${n}</b>`;d.onclick=()=>{C.wallpaper=i;wpUI();schedule(50)};box.appendChild(d)});
+}
+function fillSelects(){
+  const h=[...Array(24).keys()].map(i=>`<option value="${i}">${String(i).padStart(2,'0')}:00</option>`).join('');$('#ns').innerHTML=h;$('#ne').innerHTML=h;
+  $('#source').innerHTML=(S.sources||[]).map((s,i)=>`<option value="${i}">${s.name}</option>`).join('');
+  $('#presets').innerHTML='';PRESETS.forEach(([n,p])=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>{C.custom=Object.assign({},p);bind();schedule(50);toast('Esimerkki täytetty')};$('#presets').appendChild(b)});
+}
+
+async function state(){
+  try{S=await j('/api/state')}catch(e){$('#stat').innerHTML='<span class="dot bad"></span><span>Ei yhteyttä laitteeseen</span>';return}
+  const c=S.connected;
+  $('#stat').innerHTML=`<span class="dot ${c?'ok':'bad'}"></span><span>${c?S.ssid+' · '+S.ip:(S.ap?'Asetustila':'Ei wifiä')}</span>`;
+  $('#priceNow').innerHTML=S.price!=null?`<div class="big">${fmt(S.price,C.decimals??2)} <span style="font-size:18px;font-weight:500" class="sub">c/kWh</span></div><div class="sub">${S.level||''} · päivän ka ${fmt(S.avg)}${S.temp!=null?' · '+Math.round(S.temp)+'°':''}</div>`:`<div class="sub">${S.error||'Hintoja haetaan…'}</div>`;
+  // home screen icon: the launcher app (HTTPS) that remembers this meter's address; not in the
+  // setup window (no internet there) and not when the page was opened from that app already
+  const hb=$('#homeBtn');
+  hb.hidden=!S.ip||location.hostname==='192.168.4.1'||!!API||hasApp();
+  if(S.ip)hb.href=APP_URL+'#ip='+S.ip+'&h='+encodeURIComponent((C&&C.hostname)||'porssi');
+  if(S.saveOk===false&&!state._warned){state._warned=1;toast('⚠ Asetusten tallennus epäonnistui')}
+  $('#fw').textContent=S.fw;
+  if(S.upd){$('#updSt').textContent=S.upd.status+(S.upd.latest?' · uusin '+S.upd.latest:'');$('#updInst').style.display=S.upd.available?'':'none'}$('#wifiNow').textContent=c?`${S.ssid} (${S.rssi} dBm)`:'ei yhdistetty';
+  $('#diag').innerHTML=`${S.fps.toFixed(0)} fps · muisti ${Math.round(S.heap/1024)} kt<br>hinnat: ${S.lastSource}${S.lastOk?' '+new Date(S.lastOk*1000).toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'}):''}${S.error?'<br>'+S.error:''}`;
+  if(loaded&&!$('#wps').children.length&&(S.wallpapers||[]).length)wpUI();
+  if(!loaded){loaded=true;C=await j('/api/config');fillSelects();bind();wInit();loadReleases();if(S.ap&&!c)showWizard();if(c)loadChart()}
+}
+function showWizard(){$('#wizard').style.display='';$('#wizard').scrollIntoView({behavior:'smooth'});scan(true)}
+async function scan(re){
+  const r=await j('/api/scan'+(re?'?rescan=1':''));
+  if(r.scanning&&!r.networks.length){setTimeout(()=>scan(false),1200);return}
+  const box=$('#wNets');box.innerHTML='';
+  r.networks.sort((a,b)=>b.rssi-a.rssi).forEach(n=>{const d=document.createElement('div');d.className='net'+(n.ssid===selSsid?' sel':'');
+    const q=n.rssi>-60?'▂▄▆█':n.rssi>-70?'▂▄▆':n.rssi>-80?'▂▄':'▂';
+    d.innerHTML=`<span>${n.open?'':'🔒'}</span><span>${n.ssid.replace(/</g,'&lt;')}</span><span class="bars">${q}</span>`;
+    d.onclick=()=>{selSsid=n.ssid;$('#wSsid').value=n.ssid;scan(false);$('#wPass').focus()};box.appendChild(d)});
+  if(!r.networks.length)box.innerHTML='<div class="muted">Verkkoja ei löytynyt – kirjoita nimi alle.</div>';
+  if(r.scanning)setTimeout(()=>scan(false),1500);
+}
+async function joinWifi(){
+  const ssid=$('#wSsid').value.trim(),pass=$('#wPass').value;const m=$('#wMsg');
+  if(!ssid){toast('Valitse verkko');return}
+  m.style.display='block';m.textContent='Yhdistetään verkkoon '+ssid+'…';
+  await post('/api/wifi',{ssid,pass});
+  for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,1000));
+    try{const s=await j('/api/state');
+      if(s.connected&&s.ssid===ssid){m.innerHTML=`<b style="color:var(--ok)">✓ Valmis!</b> Laite on yhdistetty.<br>Palaa omaan wifiisi ja avaa asetukset jatkossa osoitteesta<br><a href="http://${s.host}">http://${s.host}</a> tai <a href="http://${s.ip}">http://${s.ip}</a>`;return}
+      if(s.fail&&i>8){m.innerHTML=`<b style="color:var(--bad)">${s.fail}</b> Tarkista salasana ja yritä uudelleen.`;return}
+    }catch(e){}}
+  m.textContent='Yhteyttä ei saatu. Tarkista verkon nimi ja salasana.';
+}
+async function testSrc(){const r=$('#testRes');r.style.display='block';r.textContent='Testataan…';await post('/api/test');
+  for(let i=0;i<60;i++){await new Promise(x=>setTimeout(x,700));const t=await j('/api/test');if(!t.busy&&t.result){r.textContent=t.result;return}}r.textContent='Aikakatkaisu';}
+async function geo(){
+  const q=$('#city').value.trim();if(!q)return;const box=$('#geoRes');box.innerHTML='<div class="muted">Haetaan…</div>';
+  try{const r=await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=6&language=fi&name='+encodeURIComponent(q))).json();
+    box.innerHTML='';(r.results||[]).forEach(p=>{const d=document.createElement('div');d.className='net';d.innerHTML=`<span>📍</span><span>${p.name}</span><span class="bars">${p.admin1||''} ${p.country_code}</span>`;
+      d.onclick=()=>{C.city=p.name;C.lat=+p.latitude.toFixed(4);C.lon=+p.longitude.toFixed(4);bind();box.innerHTML='';schedule(50)};box.appendChild(d)});
+    if(!box.children.length)box.innerHTML='<div class="muted">Ei tuloksia</div>';
+  }catch(e){box.innerHTML='<div class="muted">Haku vaatii internet-yhteyden. Syötä koordinaatit käsin.</div>'}
+}
+async function loadChart(){
+  try{const d=await j('/api/prices');PRD=d;const cv=$('#chart'),g=cv.getContext('2d');const W=cv.width=cv.clientWidth*2,H=cv.height=240;
+    g.clearRect(0,0,W,H);const now=Date.now()/1000;const ps=d.prices;if(!ps.length)return;
+    const mx=Math.max(1,...ps.map(p=>p.p)),mn=Math.min(0,...ps.map(p=>p.p));const bw=W/ps.length;
+    ps.forEach((p,i)=>{const h=(p.p-mn)/(mx-mn)*(H-30);const lo=C.cheapBelow,hi=C.expensiveAbove;
+      g.fillStyle=p.p<0?'#38bdf8':p.p<lo?'#34d399':p.p>hi?'#f87171':'#fbbf24';g.globalAlpha=(p.t+d.step<now)?.3:1;
+      g.fillRect(i*bw+.5,H-20-h,Math.max(1,bw-1),h)});
+    g.globalAlpha=1;g.fillStyle=getComputedStyle(document.body).color;g.font='20px system-ui';
+    ps.forEach((p,i)=>{const t=new Date(p.t*1000);if(t.getMinutes()==0&&t.getHours()%6==0)g.fillText(String(t.getHours()).padStart(2,'0'),i*bw,H-2)});
+  }catch(e){}
+}
+let snapBusy=false;
+async function snap(){
+  const cv=$('#scr');
+  if(snapBusy||document.hidden||cv.getBoundingClientRect().bottom<0)return;snapBusy=true;
+  const full=cv.clientWidth>200,N=full?240:120;
+  try{const b=new Uint8Array(await (await F(full?'/api/screen?full=1':'/api/screen')).arrayBuffer());if(b.length===N*N*2){
+    const t=document.createElement('canvas');t.width=t.height=N;const tg=t.getContext('2d'),im=tg.createImageData(N,N),o=im.data;
+    for(let i=0,k=0;i<N*N;i++,k+=4){const v=(b[i*2]<<8)|b[i*2+1];o[k]=(v>>8&0xf8)|(v>>13);o[k+1]=(v>>3&0xfc)|(v>>9&3);o[k+2]=(v<<3&0xf8)|(v>>2&7);o[k+3]=255}
+    tg.putImageData(im,0,0);const g=cv.getContext('2d');g.imageSmoothingEnabled=true;g.drawImage(t,0,0,240,240)}}catch(e){}
+  snapBusy=false;
+}
+
+// ---------------------------------------------------------------- release notes from GitHub
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){if((x[i]||0)!==(y[i]||0))return (x[i]||0)-(y[i]||0)}return 0};
+function relRepo(){const u=C.updateUrl||'';const m=u.match(/raw\.githubusercontent\.com\/([^/]+\/[^/]+)\//)||u.match(/github\.com\/([^/]+\/[^/]+)\//);return m?m[1]:'paleppp/porssisahko-ota'}
+function relRender(items){
+  const box=$('#relList');if(!items.length){box.innerHTML='<div class="muted">Ei julkaisuja.</div>';return}
+  box.innerHTML=items.map(r=>{
+    const v=r.v,cur=vcmp(v,S.fw)===0,newer=vcmp(v,S.fw)>0;
+    const tag=cur?'<span class="tag on">Asennettu</span>':newer?'<span class="tag on">Uusi</span>':'';
+    const dt=r.d?new Date(r.d).toLocaleDateString('fi-FI',{day:'numeric',month:'numeric',year:'numeric'}):'';
+    const nt=r.n&&r.n!=='Versio '+v?`<div class="nt">${esc(r.n)}</div>`:'';
+    return `<div class="it"><div class="hd">Versio ${esc(v)} ${tag}<span class="dt">${dt}</span></div>${nt}</div>`}).join('');
+}
+async function loadReleases(){
+  const repo=relRepo();$('#relAll').href='https://github.com/'+repo+'/releases';
+  try{
+    const r=await fetch(`https://api.github.com/repos/${repo}/releases?per_page=6`,{headers:{Accept:'application/vnd.github+json'}});
+    if(!r.ok)throw 0;
+    const js=await r.json();
+    relRender(js.filter(x=>!x.draft).map(x=>({v:(x.tag_name||'').replace(/^v/,''),d:x.published_at,n:(x.body||'').trim()})).filter(x=>/^\d+\.\d+\.\d+$/.test(x.v)).sort((a,b)=>vcmp(b.v,a.v)).slice(0,5));
+  }catch(e){ // no internet for the browser (e.g. setup mode): what the device itself last saw
+    const u=S.upd||{};
+    if(u.latest)relRender([{v:u.latest,d:u.checked?u.checked*1000:null,n:u.notes||''}]);
+    else $('#relList').innerHTML='<div class="muted">Julkaisutietoja ei saatu (ei internet-yhteyttä).</div>';
+  }
+}
+function updCheck(i){if(i&&!confirm('Asennetaanko uusi versio? Laite käynnistyy uudelleen.'))return;post('/api/update-check'+(i?'?install=1':''));toast(i?'Päivitys käynnistyy…':'Tarkistetaan…');setTimeout(state,5000);setTimeout(state,12000)}
+function doUpdate(){
+  const f=$('#fwf').files[0];if(!f){toast('Valitse ensin tiedosto');return}
+  if(API){const fd=new FormData();fd.append('fw',f);toast('Päivitetään… älä sulje sivua');  // (no upload progress through fetch)
+    F('/update',{method:'POST',body:fd}).then(r=>{toast(r.ok?'Päivitetty! Käynnistyy uudelleen…':'Päivitys epäonnistui');if(r.ok)setTimeout(()=>location.reload(),8000)}).catch(()=>toast('Päivitys epäonnistui'));return}
+  const x=new XMLHttpRequest(),fd=new FormData(),p=$('#fwp');fd.append('fw',f);p.style.display='block';
+  x.upload.onprogress=e=>p.value=e.loaded/e.total*100;
+  x.onload=()=>{toast(x.status==200?'Päivitetty! Käynnistyy uudelleen…':'Päivitys epäonnistui');if(x.status==200)setTimeout(()=>location.reload(),8000)};
+  x.open('POST','/update');x.send(fd);
+}
+
+// ---------------------------------------------------------------- custom page editor
+const WT=['Teksti','Hinta nyt','Seuraava hinta','Kello','Päiväys','Lämpötila','Sää (teksti)','Sääkuvake','Hintataso','Hintakaavio','Hintakehä 24 h','Päivän tilasto','Halvin jakso','Hintamittari','Paneeli','Ympyrä','Analoginen kello'];
+const WFAM=['Inter (perus)','Ohut','Pikseli (8-bit)','Digitaali (LCD)'],WFX=['Ei tehostetta','Varjo','Hehku','Ääriviiva','Neon'];
+const WFN=['Pieni','Normaali','Lihava','Iso','Suuri','Jättinumerot','Ohut kello'];
+const FPX=[13,16,18,24,36,62,64],FWT=[500,500,650,650,700,700,300];
+const NUMERIC=[1,3],SHAPE=[9,10,13,14,15,16],NOTEXT=[7,9,10,13,14,15,16];
+const LVC={Negatiivinen:'#38bdf8',Edullinen:'#34d399',Normaali:'#fbbf24',Kallis:'#f87171'};
+let W=[],wSel=-1,drag=null,boxes=[],wT=0,PRD=null;
+function wDef(t){const w={t,x:120,y:120,w:120,h:40,f:1,al:1,a:255,o:0,c:'#ffffff',tx:''};
+  return Object.assign(w,({0:{tx:'Oma teksti'},1:{f:5,c:'auto'},3:{f:3},8:{f:0,c:'auto'},9:{w:180,h:50,c:'auto'},10:{w:236,h:10,c:'auto'},13:{w:200,h:10,c:'auto'},14:{w:170,h:60,c:'#000000',a:120,o:16},15:{w:90,c:'#000000',a:120},16:{w:150,o:3}})[t]||{})}
+const PRE=[['Kello + hinta',[{t:3,y:60,f:3},{t:1,y:114,f:5,c:'auto'},{t:0,y:152,f:1,c:'#b4becc',tx:'c/kWh'},{t:8,y:180,f:0},{t:5,y:207,f:1}]],
+ ['Minimalistinen',[{t:10,w:236,h:10},{t:1,y:112,f:5,c:'#ffffff'},{t:0,y:150,f:1,c:'#9aa4b2',tx:'c/kWh'}]],
+ ['Mittari',[{t:13,y:128,w:200,h:12},{t:1,y:118,f:5},{t:0,y:156,f:0,c:'#9aa4b2',tx:'c/kWh nyt'},{t:3,y:200,f:1}]],
+ ['Tietokeskus',[{t:14,y:64,w:176,h:54,o:18},{t:3,y:64,f:4},{t:9,y:134,w:184,h:52},{t:11,y:178,f:0,c:'#cfd6e0'},{t:12,y:200,f:0,c:'#86efac'}]],
+ ['Sää + kello',[{t:7,y:66},{t:5,y:118,f:4},{t:6,y:148,f:1,c:'#b4becc'},{t:3,y:184,f:3},{t:1,y:212,f:1,c:'auto'}]],
+ ['Tyhjä',[]]];
+const clampv=(v,a,b)=>Math.max(a,Math.min(b,v));
+function autoCol(){return S.levelColor||LVC[S.level]||`hsl(${C.accentHue} 70% 60%)`}
+function rr(g,x,y,w,h,r){r=Math.min(r,w/2,h/2);g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+const PXF={" ":[3,0,0,0,0,0,0,0],"0":[5,14,17,25,21,19,17,14],"1":[5,4,6,4,4,4,4,14],"2":[5,14,17,16,8,4,2,31],"3":[5,31,8,4,8,16,17,14],"4":[5,8,12,10,9,31,8,8],"5":[5,31,1,15,16,16,17,14],"6":[5,12,2,1,15,17,17,14],"7":[5,31,16,8,4,2,2,2],"8":[5,14,17,17,14,17,17,14],"9":[5,14,17,17,30,16,8,6],"A":[5,14,17,17,31,17,17,17],"B":[5,15,17,17,15,17,17,15],"C":[5,14,17,1,1,1,17,14],"D":[5,7,9,17,17,17,9,7],"E":[5,31,1,1,15,1,1,31],"F":[5,31,1,1,15,1,1,1],"G":[5,14,17,1,29,17,17,30],"H":[5,17,17,17,31,17,17,17],"I":[3,7,2,2,2,2,2,7],"J":[5,28,8,8,8,8,9,6],"K":[5,17,9,5,3,5,9,17],"L":[5,1,1,1,1,1,1,31],"M":[5,17,27,21,21,17,17,17],"N":[5,17,17,19,21,25,17,17],"O":[5,14,17,17,17,17,17,14],"P":[5,15,17,17,15,1,1,1],"Q":[5,14,17,17,17,21,9,22],"R":[5,15,17,17,15,5,9,17],"S":[5,30,1,1,14,16,16,15],"T":[5,31,4,4,4,4,4,4],"U":[5,17,17,17,17,17,17,14],"V":[5,17,17,17,17,17,10,4],"W":[5,17,17,17,21,21,21,10],"X":[5,17,17,10,4,10,17,17],"Y":[5,17,17,10,4,4,4,4],"Z":[5,31,16,8,4,2,1,31],"Ä":[5,10,0,14,17,31,17,17],"Ö":[5,10,0,14,17,17,17,14],"Å":[5,4,0,14,17,31,17,17],"a":[5,0,0,14,16,30,17,30],"b":[5,1,1,13,19,17,17,15],"c":[5,0,0,14,1,1,17,14],"d":[5,16,16,22,25,17,17,30],"e":[5,0,0,14,17,31,1,14],"f":[5,12,18,2,7,2,2,2],"g":[5,0,0,30,17,17,30,16,14],"h":[5,1,1,13,19,17,17,17],"i":[3,2,0,3,2,2,2,7],"j":[4,8,0,12,8,8,8,9,6],"k":[4,1,1,9,5,3,5,9],"l":[3,3,2,2,2,2,2,7],"m":[5,0,0,11,21,21,17,17],"n":[5,0,0,13,19,17,17,17],"o":[5,0,0,14,17,17,17,14],"p":[5,0,0,15,17,17,15,1,1],"q":[5,0,0,30,17,17,30,16,16],"r":[5,0,0,13,19,1,1,1],"s":[5,0,0,14,1,14,16,15],"t":[5,2,2,7,2,2,18,12],"u":[5,0,0,17,17,17,25,22],"v":[5,0,0,17,17,17,10,4],"w":[5,0,0,17,17,21,21,10],"x":[5,0,0,17,10,4,10,17],"y":[5,0,0,17,17,17,30,16,14],"z":[5,0,0,31,8,4,2,31],"ä":[5,10,0,14,16,30,17,30],"ö":[5,10,0,14,17,17,17,14],"å":[5,4,0,14,16,30,17,30],"é":[5,8,4,14,17,31,1,14],"ü":[5,10,0,17,17,17,25,22],"!":[1,1,1,1,1,1,0,1],"\"":[3,5,5,0,0,0,0,0],"#":[5,10,10,31,10,31,10,10],"$":[5,4,30,5,14,20,15,4],"%":[5,19,19,8,4,2,25,25],"&":[5,6,9,5,2,21,9,22],"'":[1,1,1,0,0,0,0,0],"(":[3,4,2,1,1,1,2,4],")":[3,1,2,4,4,4,2,1],"*":[5,0,4,21,14,21,4,0],"+":[5,0,4,4,31,4,4,0],",":[2,0,0,0,0,0,3,3,2],"-":[4,0,0,0,15,0,0,0],".":[2,0,0,0,0,0,3,3],"/":[5,16,8,8,4,2,2,1],":":[2,0,3,3,0,3,3,0],";":[2,0,3,3,0,3,3,2,1],"<":[4,8,4,2,1,2,4,8],"=":[5,0,0,31,0,31,0,0],">":[4,1,2,4,8,4,2,1],"?":[5,14,17,16,8,4,0,4],"@":[5,14,17,29,21,29,1,30],"[":[3,7,1,1,1,1,1,7],"\\":[5,1,2,2,4,8,8,16],"]":[3,7,4,4,4,4,4,7],"^":[5,4,10,17,0,0,0,0],"_":[5,0,0,0,0,0,0,31],"`":[2,1,2,0,0,0,0,0],"{":[3,4,2,2,1,2,2,4],"|":[1,1,1,1,1,1,1,1],"}":[3,1,2,2,4,2,2,1],"~":[5,0,0,2,21,8,0,0],"°":[4,6,9,9,6,0,0,0],"€":[5,28,2,15,2,15,2,28],"–":[5,0,0,0,31,0,0,0],"−":[5,0,0,0,31,0,0,0],"·":[1,0,0,0,1,0,0,0],"×":[5,0,17,10,4,10,17,0],"↑":[5,4,14,21,4,4,4,4],"↓":[5,4,4,4,4,21,14,4],"→":[5,0,4,8,31,8,4,0],"←":[5,0,4,2,31,2,4,0],"…":[5,0,0,0,0,0,0,21]};
+const PXS=[1,2,2,3,4,6,6],DIR8=[[16,0],[11,11],[0,16],[-11,11],[-16,0],[-11,-11],[0,-16],[11,-11]];
+function h2rgb(h){const x=parseInt(h.slice(1),16);return[x>>16&255,x>>8&255,x&255]}
+function mixHex(a,b,t){const A=h2rgb(a),B=h2rgb(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('')}
+function tsize(w,num){let f=w.f;if(!num&&f>4&&(w.ff||0)!==2)f=4;return f}
+function capH(w,f){const fam=w.ff||0;return fam===2?7*PXS[f]:fam===3?Math.round(FPX[f]*0.73):FPX[f]*0.727}
+// seven-segment digits, same geometry as tools/gen_fonts.py
+function seg7(g,ch,x,base,H,col){
+  const Wd=Math.max(4,Math.round(H*.52)),t=Math.max(1.6,H*.16),pad=Math.floor(t)+2,sl=.10,ht=t/2;
+  const P=(px,py)=>[x+pad/2+px+(H-py)*sl,base-H+py];
+  const D={'0':'abcdef','1':'bc','2':'abged','3':'abgcd','4':'fgbc','5':'afgcd','6':'afgedc','7':'abc','8':'abcdefg','9':'abcdfg','-':'g','−':'g'};
+  const SG={a:[0,0,1,0],b:[1,0,1,.5],c:[1,.5,1,1],d:[0,1,1,1],e:[0,.5,0,1],f:[0,0,0,.5],g:[0,.5,1,.5]};
+  const poly=(pts,a)=>{const ga=g.globalAlpha;g.globalAlpha=ga*a;g.beginPath();pts.forEach((p,i)=>{const q=P(p[0],p[1]);i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])});g.fill();g.globalAlpha=ga};
+  const gp=t*.18,seg=(x0,y0,x1,y1,a)=>poly(y0===y1?[[x0+gp,y0],[x0+gp+ht,y0-ht],[x1-gp-ht,y0-ht],[x1-gp,y0],[x1-gp-ht,y0+ht],[x0+gp+ht,y0+ht]]:[[x0,y0+gp],[x0+ht,y0+gp+ht],[x0+ht,y1-gp-ht],[x0,y1-gp],[x0-ht,y1-gp-ht],[x0-ht,y0+gp+ht]],a);
+  g.fillStyle=col;
+  if(D[ch]!==undefined){for(const k in SG){const [a,b,c,e]=SG[k];const on=D[ch].includes(k);if(!on&&(ch==='-'||ch==='−'))continue;
+      seg(a*(Wd-t)+t/2,b*(H-t)+t/2,c*(Wd-t)+t/2,e*(H-t)+t/2,on?1:.1)}return Wd+pad}
+  if(ch==='+'){seg(t/2,H/2,Wd-t/2,H/2,1);seg(Wd/2,H*.22,Wd/2,H*.78,1);return Wd+pad}
+  if(ch==='.'||ch===','){poly([[0,H-t],[t,H-t],[t,H],[0,H]],1);return Math.floor(t)+3}
+  if(ch===':'){for(const yy of[H*.3,H*.72])poly([[0,yy-t/2],[t,yy-t/2],[t,yy+t/2],[0,yy+t/2]],1);return Math.floor(t)+3}
+  if(ch===' ')return Wd+pad;return null}
+const MCTX=document.createElement('canvas').getContext('2d');
+// draws (or only measures when col is null) a styled text run; returns its width
+function wRun(g,w,txt,f,x,base,col){
+  if(!col)g=MCTX;
+  const fam=w.ff||0,st=w.st||0,bold=!!(st&2),sp=w.sp||0,k=PXS[f];
+  const wt=fam===1&&f>=3?250:FWT[f];g.font=`${wt} ${FPX[f]}px Inter,system-ui,sans-serif`;g.textBaseline='alphabetic';g.textAlign='left';
+  let pen=x;const chars=[...txt];
+  chars.forEach((ch,i)=>{let adv=null;
+    if(fam===2&&PXF[ch]){const gl=PXF[ch],cw=gl[0],pb=f===2?1:0;
+      if(col){g.fillStyle=col;for(let r=1;r<gl.length;r++)for(let c=0;c<cw;c++)if(gl[r]>>c&1)g.fillRect(pen+c*k,base+(r-8)*k,k+pb+(bold?1:0),k)}
+      adv=(cw+1)*k+pb}
+    else if(fam===3){adv=seg7(g,ch,pen,base,Math.round(FPX[f]*.73),col||'#000')}
+    if(adv===null){if(col){g.fillStyle=col;g.fillText(ch,pen,base);if(bold)g.fillText(ch,pen+1,base)}adv=g.measureText(ch).width}
+    pen+=adv+(i<chars.length-1?sp:0)});
+  return pen-x+(bold?1:0)}
+function wStyled(g,w,txt,col){
+  const num=NUMERIC.includes(w.t),f=tsize(w,num),H=capH(w,f),st=w.st||0;if(st&4)txt=txt.toUpperCase();
+  const tw=wRun(g,w,txt,f,0,0,null),x0=w.al==0?w.x:w.al==2?w.x-tw:w.x-tw/2,base=w.y+H/2;
+  const fxc=(st&16)||w.fx==4?col:(w.fc||'#000000'),sz=w.fs||3,A=w.a/255;
+  const draw=(dx,dy,c,a)=>{g.save();g.globalAlpha=A*a;if(st&1)g.transform(1,0,-54/256,1,54/256*(base+dy),0);wRun(g,w,txt,f,x0+dx,base+dy,c);g.restore()};
+  if(w.fx==1){const o=Math.floor((sz+1)/2);draw(o+1,o+1,fxc,80/255);draw(o,o,fxc,190/255)}
+  if(w.fx==2||w.fx==4){const r1=sz,r2=Math.floor((sz+1)/2);DIR8.forEach(d=>draw(Math.trunc(d[0]*r1/16),Math.trunc(d[1]*r1/16),fxc,34/255));
+    if(r2!==r1)DIR8.forEach(d=>draw(Math.trunc(d[0]*r2/16),Math.trunc(d[1]*r2/16),fxc,60/255));if(w.fx==4)col=mixHex(col,'#ffffff',150/255)}
+  if(w.fx==3){const t=Math.floor((sz+1)/2);for(let rr=1;rr<=t;rr++)DIR8.forEach(d=>draw(Math.round(d[0]*rr/16),Math.round(d[1]*rr/16),fxc,1))}
+  let main=col;if(st&8){const gr=g.createLinearGradient(0,base-H,0,base);gr.addColorStop(0,col);gr.addColorStop(1,w.c2||'#ff00ff');main=gr}
+  draw(0,0,main,1);
+  return[x0-2,base-H-2,tw+4,H+6]}
+function wAnalog(g,w,col){const R=w.w/2,o=w.o||0,n=new Date();g.lineCap='round';
+  if(o&4){g.save();g.globalAlpha*=110/255;g.fillStyle='#000';g.beginPath();g.arc(w.x,w.y,R,0,7);g.fill();g.restore()}
+  if(o&2)for(let i=0;i<12;i++){const a=i*Math.PI/6,l=i%3?.08:.16;g.lineWidth=i%3?1.2:2.2;g.strokeStyle=col;g.beginPath();g.moveTo(w.x+Math.sin(a)*R*(.94-l),w.y-Math.cos(a)*R*(.94-l));g.lineTo(w.x+Math.sin(a)*R*.94,w.y-Math.cos(a)*R*.94);g.stroke()}
+  const s=n.getSeconds(),m=n.getMinutes()+s/60,h=n.getHours()%12+m/60;
+  const hand=(a,len,wd,c,back=0)=>{g.lineWidth=wd;g.strokeStyle=c;g.beginPath();g.moveTo(w.x-Math.sin(a)*R*back,w.y+Math.cos(a)*R*back);g.lineTo(w.x+Math.sin(a)*R*len,w.y-Math.cos(a)*R*len);g.stroke()};
+  hand(h*Math.PI/6,.52,Math.max(2.5,R*.07),col);hand(m*Math.PI/30,.8,Math.max(1.8,R*.045),col);
+  if(o&1)hand(s*Math.PI/30,.88,1.2,w.fc||'#ff5050',.15);
+  return[w.x-R,w.y-R,2*R,2*R]}
+function wText(w){
+  const now=new Date(),p2=n=>String(n).padStart(2,'0'),wd=['sunnuntai','maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai'];
+  const pr=S.price!=null?S.price:7.59,dec=C.decimals??2;
+  switch(w.t){
+    case 0:return w.tx;
+    case 1:return fmt(pr,dec);
+    case 2:return p2((now.getHours()+(now.getMinutes()>=45?1:0))%24)+':'+p2((Math.floor(now.getMinutes()/15)*15+15)%60)+'  '+fmt(pr*1.02,dec)+' ↑';
+    case 3:return p2(now.getHours())+':'+p2(now.getMinutes())+((w.o&1)?':'+p2(now.getSeconds()):'');
+    case 4:return w.o==1?`${now.getDate()}.${now.getMonth()+1}.${now.getFullYear()}`:w.o==2?wd[now.getDay()]:w.o==3?`${wd[now.getDay()].slice(0,2)} ${now.getDate()}.${now.getMonth()+1}.`:`${wd[now.getDay()]} ${now.getDate()}.${now.getMonth()+1}.`;
+    case 5:return S.temp!=null?Math.round(S.temp)+'°':'12°';
+    case 6:return S.wx||'Puolipilvistä';
+    case 8:return S.level||'Normaali';
+    case 11:return `ka ${fmt(S.avg??5.9,1)}  ↓ ${fmt(2.1,1)}  ↑ ${fmt(8.9,1)}`;
+    case 12:return 'Halvin 02:30–05:30';
+  }return ''}
+function futurePrices(){const now=Date.now()/1000;const ps=PRD&&PRD.prices?PRD.prices.filter(p=>p.t+PRD.step>now):[];
+  if(ps.length)return ps.slice(0,Math.round((C.chartHours||12)*3600/PRD.step)).map(p=>p.p);
+  return [...Array(48).keys()].map(i=>6+4*Math.sin(i/7)+2*Math.sin(i/2.3))}
+function pc(v){const sc=stepCol(v);if(sc)return sc;return v<0?LVC.Negatiivinen:v<C.cheapBelow?LVC.Edullinen:v>C.expensiveAbove?LVC.Kallis:LVC.Normaali}
+function wDraw(){
+  const cv=$('#wcv');if(!cv)return;const size=Math.min(320,cv.parentElement.clientWidth||300),dpr=window.devicePixelRatio||1;
+  if(cv.width!==Math.round(size*dpr)){cv.style.width=cv.style.height=size+'px';cv.width=cv.height=Math.round(size*dpr)}
+  const g=cv.getContext('2d'),k=cv.width/240;g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height);g.setTransform(k,0,0,k,0,0);
+  g.save();g.beginPath();g.arc(120,120,120,0,7);g.clip();
+  const bg=g.createRadialGradient(120,80,10,120,120,130);bg.addColorStop(0,'#16203a');bg.addColorStop(1,'#03060c');g.fillStyle=bg;g.fillRect(0,0,240,240);
+  boxes=[];
+  W.forEach((w,i)=>{
+    g.save();g.globalAlpha=w.a/255;const col=w.c==='auto'?autoCol():w.c;g.fillStyle=col;g.strokeStyle=col;let b=null;
+    if(w.t===14){rr(g,w.x-w.w/2,w.y-w.h/2,w.w,w.h,w.o);g.fill();b=[w.x-w.w/2,w.y-w.h/2,w.w,w.h]}
+    else if(w.t===15){g.beginPath();g.arc(w.x,w.y,w.w/2,0,7);g.fill();b=[w.x-w.w/2,w.y-w.w/2,w.w,w.w]}
+    else if(w.t===9){const v=futurePrices(),lo=Math.min(0,...v),hi=Math.max(1,...v),bw=w.w/v.length,x0=w.x-w.w/2,yb=w.y+w.h/2;
+      v.forEach((p,j)=>{const h=Math.max(1.2,(p-lo)/(hi-lo)*w.h);g.fillStyle=w.c==='auto'?pc(p):col;g.globalAlpha=w.a/255*(j?0.8:1);g.fillRect(x0+j*bw+0.3,yb-h,Math.max(0.6,bw-0.6),h)});b=[x0,w.y-w.h/2,w.w,w.h]}
+    else if(w.t===10){const r=w.w/2-w.h/2,v=futurePrices();g.lineWidth=w.h;for(let j=0;j<96;j++){g.strokeStyle=w.c==='auto'?pc(v[j%v.length]):col;g.beginPath();g.arc(w.x,w.y,r,(j/96)*6.283-1.5708+0.01,((j+1)/96)*6.283-1.5708-0.01);g.stroke()}
+      b=[w.x-w.w/2,w.y-w.w/2,w.w,w.w]}
+    else if(w.t===13){const r=w.w/2-w.h/2;g.lineWidth=w.h;g.lineCap='round';g.strokeStyle='rgba(255,255,255,.18)';g.beginPath();g.arc(w.x,w.y,r,-Math.PI*7/6,Math.PI/6);g.stroke();
+      g.strokeStyle=col;g.beginPath();g.arc(w.x,w.y,r,-Math.PI*7/6,-Math.PI*7/6+Math.PI*4/3*0.6);g.stroke();b=[w.x-w.w/2,w.y-w.w/2,w.w,w.w*0.8]}
+    else if(w.t===16){b=wAnalog(g,w,col)}
+    else if(w.t===7){g.font='34px system-ui';g.textAlign='center';g.textBaseline='middle';g.fillText('⛅',w.x,w.y);b=[w.x-22,w.y-20,44,40]}
+    else if(w.t===8){const txt=wText(w);const f=w.f>4?4:w.f;g.font=`${FWT[f]} ${FPX[f]}px Inter,system-ui,sans-serif`;
+      const tw=g.measureText(txt).width,x0=w.al==0?w.x:w.al==2?w.x-tw:w.x-tw/2,hh=FPX[f];
+      const lc=w.c==='auto'?(S.levelColor||LVC[S.level]||'#fbbf24'):col;g.globalAlpha=w.a/255*0.3;g.fillStyle=lc;rr(g,x0-12,w.y-hh/2-4,tw+24,hh+8,(hh+8)/2);g.fill();g.globalAlpha=w.a/255;g.fillStyle=lc;
+      g.textBaseline='middle';g.textAlign='left';g.fillText(txt,x0,w.y+1);b=[x0,w.y-hh*0.55,tw,hh*1.1]}
+    else{const txt=wText(w);if(txt)b=wStyled(g,w,txt,col)}
+    g.restore();boxes[i]=b;
+  });
+  g.restore();
+  if(wSel>=0&&boxes[wSel]){const b=boxes[wSel];g.save();g.setLineDash([4,3]);g.lineWidth=1.5;g.strokeStyle='#fff';g.strokeRect(b[0]-4,b[1]-4,b[2]+8,b[3]+8);g.restore()}
+  g.save();g.strokeStyle='rgba(255,255,255,.12)';g.setLineDash([2,4]);g.beginPath();g.moveTo(120,0);g.lineTo(120,240);g.moveTo(0,120);g.lineTo(240,120);g.stroke();g.restore();
+}
+function wSave(){C.widgets=W;clearTimeout(wT);wT=setTimeout(()=>post('/api/config',{widgets:W,silent:true,editing:true}),350)}
+function wAdd(){const t=+$('#wAddT').value;const w=wDef(t);W.push(w);wSel=W.length-1;wUI();wSave()}
+function wPreset(i){if(W.length&&!confirm('Korvataanko nykyiset widgetit pohjalla "'+PRE[i][0]+'"?'))return;
+  W=PRE[i][1].map(o=>Object.assign(wDef(o.t),o));wSel=-1;wUI();wSave()}
+function wUI(){
+  const L=$('#wList');L.innerHTML='';
+  W.forEach((w,i)=>{const d=document.createElement('div');d.className='pg'+(i===wSel?' sel':'');
+    const sub=w.t===0?w.tx:(NOTEXT.includes(w.t)?'':wText(w));
+    d.innerHTML=`<span class="nm">${WT[w.t]}<span class="sub2">${(sub||'').replace(/</g,'&lt;')}</span></span><button ${i==W.length-1?'disabled':''} title="Eteen">↑</button><button ${i==0?'disabled':''} title="Taakse">↓</button><button class="danger" title="Poista">✕</button>`;
+    const [up,dn,rm]=d.querySelectorAll('button');
+    d.querySelector('.nm').onclick=()=>{wSel=i;wUI()};
+    up.onclick=()=>{[W[i],W[i+1]]=[W[i+1],W[i]];wSel=i+1;wUI();wSave()};
+    dn.onclick=()=>{[W[i],W[i-1]]=[W[i-1],W[i]];wSel=i-1;wUI();wSave()};
+    rm.onclick=()=>{W.splice(i,1);wSel=-1;wUI();wSave()};
+    L.prepend(d)});
+  if(!W.length)L.innerHTML='<div class="muted">Ei widgettejä. Lisää yllä tai valitse valmis pohja.</div>';
+  wProps();wDraw();
+}
+function wProps(){
+  const P=$('#wProps');if(wSel<0||!W[wSel]){P.innerHTML=W.length?'<p class="hint">Napauta widgettiä esikatselussa tai listassa muokataksesi sitä.</p>':'';return}
+  const w=W[wSel],num=NUMERIC.includes(w.t),shape=SHAPE.includes(w.t),hasText=!NOTEXT.includes(w.t);
+  const fonts=WFN.map((n,i)=>(i<5||num)?`<option value="${i}" ${w.f==i?'selected':''}>${n}</option>`:'').join('');
+  let h=`<div class="prop">
+   <label class="full">Tyyppi<select data-w="t" data-n>${WT.map((n,i)=>`<option value="${i}" ${w.t==i?'selected':''}>${n}</option>`).join('')}</select></label>
+   <label>Vaaka (x) <input type="range" min="0" max="240" data-w="x" data-n value="${w.x}"></label>
+   <label>Pysty (y) <input type="range" min="0" max="240" data-w="y" data-n value="${w.y}"></label>`;
+  if(hasText)h+=`<label>Koko<select data-w="f" data-n>${fonts}</select></label>
+   <label>Tasaus<select data-w="al" data-n><option value="0" ${w.al==0?'selected':''}>Vasen</option><option value="1" ${w.al==1?'selected':''}>Keskellä</option><option value="2" ${w.al==2?'selected':''}>Oikea</option></select></label>`;
+  if(hasText&&w.t!==8){const st=w.st||0,ck=(bit,t)=>`<label class="chk"><input type="checkbox" data-st="${bit}" ${st&bit?'checked':''}> ${t}</label>`;
+    h+=`<label>Fontti<select data-w="ff" data-n>${WFAM.map((n,i)=>`<option value="${i}" ${(w.ff||0)==i?'selected':''}>${n}</option>`).join('')}</select></label>
+   <label>Kirjainväli <input type="range" min="-3" max="12" data-w="sp" data-n value="${w.sp||0}"></label>
+   ${ck(1,'Kursiivi')}${ck(2,'Lihavoitu')}${ck(4,'ISOT KIRJAIMET')}${ck(8,'Liukuväri')}
+   ${st&8?`<label class="full">Liukuvärin alasävy<input type="color" data-w="c2" value="${w.c2||'#ff00ff'}"></label>`:''}
+   <label>Tehoste<select data-w="fx" data-n>${WFX.map((n,i)=>`<option value="${i}" ${(w.fx||0)==i?'selected':''}>${n}</option>`).join('')}</select></label>
+   ${w.fx?`<label>Voimakkuus <input type="range" min="1" max="8" data-w="fs" data-n value="${w.fs||3}"></label>
+   ${w.fx!=4?`<label>Tehosteen väri<input type="color" data-w="fc" value="${w.fc||'#000000'}" ${st&16?'disabled':''}></label>${ck(16,'Sama kuin teksti')}`:''}`:''}`}
+  if(w.t===16){const o=w.o||0,ob=(bit,t)=>`<label class="chk"><input type="checkbox" data-ob="${bit}" ${o&bit?'checked':''}> ${t}</label>`;
+    h+=`${ob(1,'Sekuntiviisari')}${ob(2,'Tuntimerkit')}${ob(4,'Tumma taulu')}<label>Sekuntiviisarin väri<input type="color" data-w="fc" value="${w.fc||'#ff5050'}"></label>`}
+  if(w.t===0)h+=`<label class="full">Teksti<input type="text" maxlength="31" data-w="tx" value="${w.tx.replace(/"/g,'&quot;')}"></label>`;
+  if(shape)h+=`<label>Leveys <input type="range" min="10" max="240" data-w="w" data-n value="${w.w}"></label>
+   <label>${w.t===14||w.t===9?'Korkeus':'Paksuus'} <input type="range" min="2" max="${w.t===15?2:200}" data-w="h" data-n value="${w.h}" ${w.t===15?'disabled':''}></label>`;
+  if(w.t===3)h+=`<label class="chk full"><input type="checkbox" data-w="o" data-bit ${w.o&1?'checked':''}> Näytä sekunnit</label>`;
+  if(w.t===4)h+=`<label class="full">Muoto<select data-w="o" data-n>${['perjantai 25.9.','25.9.2026','perjantai','pe 25.9.'].map((n,i)=>`<option value="${i}" ${w.o==i?'selected':''}>${n}</option>`).join('')}</select></label>`;
+  if(w.t===14)h+=`<label class="full">Kulmien pyöristys <input type="range" min="0" max="60" data-w="o" data-n value="${w.o}"></label>`;
+  h+=`<label>Väri<input type="color" data-w="c" value="${w.c==='auto'?'#ffffff':w.c}" ${w.c==='auto'?'disabled':''}></label>
+   <label class="chk"><input type="checkbox" id="wAuto" ${w.c==='auto'?'checked':''}> Hinnan mukaan</label>
+   <label class="full">Näkyvyys <input type="range" min="10" max="255" data-w="a" data-n value="${w.a}"></label>
+   <div class="btns full" style="margin-top:0"><button onclick="W.push(Object.assign({},W[wSel],{x:W[wSel].x+10,y:W[wSel].y+10}));wSel=W.length-1;wUI();wSave()">Monista</button>
+   <button onclick="wSel=-1;wUI()">Valmis</button><button class="danger" onclick="W.splice(wSel,1);wSel=-1;wUI();wSave()">Poista</button></div></div>`;
+  P.innerHTML=h;
+  P.querySelectorAll('[data-w]').forEach(el=>{el.oninput=el.onchange=()=>{const k=el.dataset.w;let v=el.value;
+    if('n' in el.dataset)v=+v;if('bit' in el.dataset)v=el.checked?1:0;
+    if(k==='t'){W[wSel]=Object.assign(wDef(v),{x:w.x,y:w.y});wUI();wSave();return}
+    w[k]=v;if(k==='f'||k==='tx'){wListRefresh()}wDraw();wSave()}});
+  P.querySelectorAll('[data-st]').forEach(el=>el.onchange=()=>{w.st=(w.st||0)&~+el.dataset.st|(el.checked?+el.dataset.st:0);if(w.st&8&&!w.c2)w.c2='#ff00ff';wProps();wDraw();wSave()});
+  P.querySelectorAll('[data-ob]').forEach(el=>el.onchange=()=>{w.o=(w.o||0)&~+el.dataset.ob|(el.checked?+el.dataset.ob:0);wDraw();wSave()});
+  P.querySelectorAll('[data-w="fx"],[data-w="ff"]').forEach(el=>el.addEventListener('change',()=>{if(w.fx&&!w.fc)w.fc=w.fx==2?'#ffffff':'#000000';wProps()}));
+  $('#wAuto').onchange=e=>{w.c=e.target.checked?'auto':'#ffffff';wProps();wDraw();wSave()};
+}
+function wListRefresh(){const sel=wSel;const pp=$('#wProps').innerHTML;const L=$('#wList');if(!L)return;/* light refresh of names */
+  L.querySelectorAll('.sub2').forEach((el,idx)=>{const i=W.length-1-idx;const w=W[i];if(w)el.textContent=w.t===0?w.tx:(NOTEXT.includes(w.t)?'':wText(w))})}
+function wPt(e){const r=$('#wcv').getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*240,y:(e.clientY-r.top)/r.height*240}}
+function wInit(){
+  W=(C.widgets||[]).map(o=>Object.assign(wDef(o.t),o));
+  $('#wAddT').innerHTML=WT.map((n,i)=>`<option value="${i}">${n}</option>`).join('');
+  $('#wPresets').innerHTML='';PRE.forEach((p,i)=>{const b=document.createElement('button');b.textContent=p[0];b.onclick=()=>wPreset(i);$('#wPresets').appendChild(b)});
+  const on=$('#custOn');on.checked=(C.pages||[]).includes(6);
+  on.onchange=()=>{C.pages=on.checked?[...(C.pages||[]).filter(x=>x!==6),6]:(C.pages||[]).filter(x=>x!==6);if(!C.pages.length)C.pages=[0];pagesUI();save().then(()=>{if(on.checked)post('/api/page?id=6')})};
+  const cv=$('#wcv');
+  cv.onpointerdown=e=>{const p=wPt(e);let hit=-1;for(let i=W.length-1;i>=0;i--){const b=boxes[i];if(b&&p.x>=b[0]-6&&p.x<=b[0]+b[2]+6&&p.y>=b[1]-6&&p.y<=b[1]+b[3]+6){hit=i;break}}
+    if(hit!==wSel){wSel=hit;wUI()}if(hit>=0){drag={dx:p.x-W[hit].x,dy:p.y-W[hit].y};cv.setPointerCapture(e.pointerId);if(on.checked)post('/api/page?id=6')}};
+  cv.onpointermove=e=>{if(!drag||wSel<0)return;const p=wPt(e),w=W[wSel];let x=Math.round(p.x-drag.dx),y=Math.round(p.y-drag.dy);
+    if(Math.abs(x-120)<4)x=120;if(Math.abs(y-120)<4)y=120;w.x=clampv(x,0,240);w.y=clampv(y,0,240);wDraw();
+    const fx=$('#wProps [data-w="x"]'),fy=$('#wProps [data-w="y"]');if(fx)fx.value=w.x;if(fy)fy.value=w.y};
+  cv.onpointerup=cv.onpointercancel=()=>{if(drag){drag=null;wSave()}};
+  $('#cCustom').addEventListener('toggle',()=>{wDraw();if($('#cCustom').open&&on.checked)post('/api/page?id=6')});
+  window.addEventListener('resize',wDraw);
+  wUI();
+}
+setInterval(()=>{if($('#cCustom')&&$('#cCustom').open&&!drag)wDraw()},1000);
+
+state();setInterval(state,4000);
+setInterval(()=>{if(S.connected||!S.ap)snap()},3000);snap();
+setInterval(()=>{if(S.connected)loadChart()},60000);
+</script>
+</body>
+</html>

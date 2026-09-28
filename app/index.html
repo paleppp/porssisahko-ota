@@ -75,13 +75,14 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
 
   <section class="card" id="open" hidden>
     <a class="btn pri" id="openBtn" href="#">Avaa mittarin asetukset</a>
-    <a class="btn sec" id="localBtn" href="#">Kokeile osoitteella porssi.local</a>
+    <a class="btn sec" id="localBtn" href="#">Avaa numero-osoitteella</a>
   </section>
 
   <section class="card" id="help" hidden>
     <h2>Jos asetukset eivät aukea</h2>
     <ol>
       <li>Varmista, että puhelin on samassa kotiwifissä kuin mittari.</li>
+      <li>Jos nimi ei toimi puhelimessasi, napauta <b>Avaa numero-osoitteella</b>. Sovellus muistaa valinnan.</li>
       <li>Jos reititin on käynnistynyt uudelleen, mittarin osoite on voinut vaihtua. Pidä mittarin näyttöä pohjassa ja skannaa QR-koodi uudelleen, niin tämä sovellus päivittyy.</li>
     </ol>
     <p class="small">Tallennettu mittari: <code id="devAddr"></code></p>
@@ -100,14 +101,20 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   let dev = load();
   const hp = new URLSearchParams(location.hash.slice(1));
   if (validIp(hp.get('ip'))) {
-    dev = { ip: hp.get('ip'), host: validHost(hp.get('h')) ? hp.get('h') : 'porssi', at: Date.now() };
+    dev = { ip: hp.get('ip'), host: validHost(hp.get('h')) ? hp.get('h') : 'porssi', mode: dev && dev.mode, at: Date.now() };
     save(dev);
   }
   if (location.hash) history.replaceState(null, '', location.pathname + location.search);
 
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  // ?app=1 tells the meter's page it was opened from here (it then hides its own install button)
-  const url = dev ? 'http://' + dev.ip + '/?app=1' : null;
+  // The meter's name (porssi.local) never changes, so it is the default; the number address is the
+  // backup for phones that cannot resolve .local names (Android 11 and older, "Private DNS" on).
+  // Whichever the user last opened successfully by hand is used from then on.
+  // ?app=1 tells the meter's page it was opened from here (it then hides its own install button).
+  const nameUrl = dev ? 'http://' + dev.host + '.local/?app=1' : null;
+  const ipUrl = dev ? 'http://' + dev.ip + '/?app=1' : null;
+  const url = dev ? (dev.mode === 'ip' ? ipUrl : nameUrl) : null;
+  const remember = mode => { if (dev) { dev.mode = mode; save(dev); } };
 
   // The meter is only reachable over the home wifi. Android Chrome tells whether the phone is on
   // wifi or mobile data; elsewhere (iPhone, computers) the type is unknown and we just try.
@@ -123,9 +130,10 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
     sessionStorage.setItem('went', '1');
     $('#noWifi').hidden = true;
     $('#going').hidden = false;
-    setTimeout(() => location.replace(url), 250);
+    setTimeout(() => { location.href = url; }, 250);  // href, not replace: Back returns here if it fails
     setTimeout(showMenu, 7000);  // the meter did not answer: offer the buttons and help
   };
+  window.addEventListener('pageshow', e => { if (e.persisted) showMenu(); });  // back from a failed attempt
   if (conn && conn.addEventListener) {
     conn.addEventListener('change', () => {
       if (!dev) return;
@@ -147,10 +155,12 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
     showMenu();
   }
   if (dev) {
-    $('#openBtn').href = url;
-    $('#localBtn').href = 'http://' + dev.host + '.local/?app=1';
-    $('#localBtn').textContent = 'Kokeile osoitteella ' + dev.host + '.local';
-    $('#devAddr').textContent = dev.ip + '  ·  ' + dev.host + '.local';
+    $('#openBtn').href = nameUrl;
+    $('#openBtn').addEventListener('click', () => remember('name'));
+    $('#localBtn').href = ipUrl;
+    $('#localBtn').textContent = 'Avaa numero-osoitteella ' + dev.ip;
+    $('#localBtn').addEventListener('click', () => remember('ip'));
+    $('#devAddr').textContent = dev.host + '.local  ·  ' + dev.ip;
   }
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

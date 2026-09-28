@@ -52,6 +52,13 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
     <ol id="wifiHelp" class="steps"><li>Vedä sormella näytön yläreunasta alas.</li><li>Napauta <b>Wi-Fi</b>-kuvaketta, niin se muuttuu korostetuksi.</li></ol>
   </section>
 
+  <section class="card" id="dbg" hidden>
+    <h2>Testitiedot</h2>
+    <pre id="dbgLog" style="white-space:pre-wrap;font-size:14px;margin:0;color:var(--muted)"></pre>
+    <button class="pri" id="dbgRetry" type="button">Yritä uudelleen</button>
+    <a class="btn sec" id="dbgOld" href="#">Avaa vanhalla tavalla (palkin kanssa)</a>
+  </section>
+
   <section class="card" id="noDev" hidden>
     <h2>Skannaa ensin mittarin QR-koodi</h2>
     <ol>
@@ -137,14 +144,64 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
     // wifi known to be off: nothing to open, only the wifi card is shown
     $('#open').hidden = $('#help').hidden = !dev || (known && !onWifi());
   };
-  const go = () => {
+  // Is the meter answering this page directly? Chrome 142+ lets an HTTPS page call a device on the
+  // home network after a one-time "local network" permission; the settings then open inside
+  // this app, full screen. The first request may wait for that permission prompt.
+  const TEST = /\/app-test\//.test(location.pathname);  // the test build shows what happened
+  const log = [];
+  const note = m => { log.push(m); if (TEST) $('#dbgLog').textContent = log.join(String.fromCharCode(10)); };
+  const permState = async () => {
+    for (const name of ['local-network-access', 'local-network']) {
+      try { return name + ': ' + (await navigator.permissions.query({ name })).state; } catch (e) {}
+    }
+    return 'lupaa ei voi kysyä';
+  };
+  const reach = async (base, ms) => {
+    const c = new AbortController(), t = setTimeout(() => c.abort(), ms), t0 = Date.now();
+    try {
+      const r = await fetch(base + '/api/state', { targetAddressSpace: 'local', cache: 'no-store', signal: c.signal });
+      note(base + ' → HTTP ' + r.status + ' (' + (Date.now() - t0) + ' ms)');
+      return r.ok;
+    } catch (e) {
+      note(base + ' → ' + (c.signal.aborted ? 'aikakatkaisu' : e.name + ': ' + e.message) + ' (' + (Date.now() - t0) + ' ms)');
+      return false;
+    } finally {
+      clearTimeout(t);
+    }
+  };
+  const go = async prefer => {
     if (going) return;
     going = true;
     sessionStorage.setItem('went', '1');
-    $('#noWifi').hidden = true;
+    $('#noWifi').hidden = $('#open').hidden = $('#help').hidden = true;
     $('#going').hidden = false;
-    setTimeout(() => { location.href = url; }, 250);  // href, not replace: Back returns here if it fails
-    setTimeout(showMenu, 7000);  // the meter did not answer: offer the buttons and help
+    const name = 'http://' + dev.host + '.local', ip = 'http://' + dev.ip;
+    const mode = prefer || dev.mode || 'name';
+    const tries = mode === 'ip' ? [[ip, 'ip'], [name, 'name']] : [[name, 'name'], [ip, 'ip']];
+    const perm = await permState();
+    note('Chrome ' + ((navigator.userAgent.match(/Chrome\/(\d+)/) || [])[1] || '?') + ' · ' + perm);
+    // until the permission is decided, a request may wait for the prompt: give it a minute
+    const wait = /granted/.test(perm) ? 8000 : 60000;
+    for (let k = 0; k < tries.length; k++) {
+      if (await reach(tries[k][0], wait)) {
+        remember(tries[k][1]);
+        sessionStorage.setItem('porssiApi', tries[k][0]);
+        location.href = 'settings.html';
+        return;
+      }
+    }
+    note('lupa nyt: ' + await permState());
+    if (TEST) {  // stay here and show the log instead of falling back
+      $('#going').hidden = true;
+      $('#dbg').hidden = false;
+      $('#dbgOld').href = mode === 'ip' ? ipUrl : nameUrl;
+      going = false;
+      return;
+    }
+    // no direct access (other browsers, permission refused, older meter software): the meter's
+    // own page in the browser, as before. href, not replace: Back returns here if it fails.
+    location.href = mode === 'ip' ? ipUrl : nameUrl;
+    setTimeout(showMenu, 7000);
   };
   window.addEventListener('pageshow', e => { if (e.persisted) showMenu(); });  // back from a failed attempt
   if (conn && conn.addEventListener) {
@@ -168,12 +225,13 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   } else {
     showMenu();
   }
+  $('#dbgRetry').addEventListener('click', () => { log.length = 0; go(); });
   if (dev) {
     $('#openBtn').href = nameUrl;
-    $('#openBtn').addEventListener('click', () => remember('name'));
+    $('#openBtn').addEventListener('click', e => { e.preventDefault(); remember('name'); go('name'); });
     $('#localBtn').href = ipUrl;
     $('#localBtn').textContent = 'Avaa numero-osoitteella ' + dev.ip;
-    $('#localBtn').addEventListener('click', () => remember('ip'));
+    $('#localBtn').addEventListener('click', e => { e.preventDefault(); remember('ip'); go('ip'); });
     $('#devAddr').textContent = dev.host + '.local  ·  ' + dev.ip;
   }
 

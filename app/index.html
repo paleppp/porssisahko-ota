@@ -28,6 +28,7 @@ button,.btn{font:inherit;cursor:pointer;display:block;width:100%;text-align:cent
 .pri{background:var(--ac);color:var(--ac-ink)}
 .sec{background:transparent;color:var(--ink);border:2px solid var(--line);font-size:18px;font-weight:700;padding:14px}
 ol{margin:0;padding-left:24px;display:flex;flex-direction:column;gap:6px}
+ol.steps{font-size:21px;font-weight:600;gap:10px}
 .small{font-size:15px;color:var(--muted)}
 code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
 .spin{width:52px;height:52px;margin:6px auto 0;border-radius:50%;border:6px solid var(--line);border-top-color:var(--ac);animation:r 1s linear infinite}
@@ -48,8 +49,7 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   <section class="card" id="noWifi" hidden>
     <h2 id="nwTitle">Puhelimen wifi on pois päältä</h2>
     <p class="sub" id="nwText">Mittari löytyy vain kotisi wifin kautta. Kytke wifi päälle, niin asetukset aukeavat itsestään.</p>
-    <a class="btn pri" id="wifiBtn" href="intent:#Intent;action=android.settings.panel.action.WIFI;end">Kytke wifi päälle</a>
-    <ol id="wifiHelp" hidden><li>Vedä sormella näytön yläreunasta alas.</li><li>Napauta <b>Wi-Fi</b>-kuvaketta, niin se muuttuu korostetuksi.</li><li>Palaa tähän sovellukseen.</li></ol>
+    <ol id="wifiHelp" class="steps"><li>Vedä sormella näytön yläreunasta alas.</li><li>Napauta <b>Wi-Fi</b>-kuvaketta, niin se muuttuu korostetuksi.</li></ol>
   </section>
 
   <section class="card" id="noDev" hidden>
@@ -121,8 +121,7 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   const conn = navigator.connection;
   const known = !!(conn && conn.type);  // Chrome on Android; Firefox and iPhone do not tell
   const onWifi = () => !known || !/^(cellular|none|bluetooth|wimax)$/.test(conn.type);
-  const android = /android/i.test(navigator.userAgent);
-  let going = false, panelOpened = false;
+  let going = false;
   const showMenu = () => {
     going = false;
     $('#going').hidden = true;
@@ -133,12 +132,10 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
       $('#open').after($('#noWifi'));
       $('#nwTitle').textContent = 'Onko puhelimen wifi päällä?';
       $('#nwText').textContent = 'Mittarin asetukset aukeavat vain kotisi wifissä. Jos wifi on pois, kytke se ensin päälle, niin asetukset aukeavat itsestään.';
-      $('#wifiBtn').className = 'btn sec';
     }
-    $('#wifiBtn').hidden = !android;
-    if (!android) $('#wifiHelp').hidden = false;
     $('#noDev').hidden = !!dev;
-    $('#open').hidden = $('#help').hidden = !dev;
+    // wifi known to be off: nothing to open, only the wifi card is shown
+    $('#open').hidden = $('#help').hidden = !dev || (known && !onWifi());
   };
   const go = () => {
     if (going) return;
@@ -157,17 +154,9 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
       else showMenu();
     });
   }
-  $('#wifiBtn').addEventListener('click', () => {
-    // the wifi panel opens on Android 10+; if nothing happened, show where the switch is
-    panelOpened = true;
-    setTimeout(() => { if (document.visibilityState === 'visible') $('#wifiHelp').hidden = false; }, 1500);
-  });
-  // back from the wifi panel: give the phone a moment to join the home wifi, then try again
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible' || !panelOpened || !dev) return;
-    panelOpened = false;
-    if (onWifi()) setTimeout(go, 3000);
-  });
+  // (A web page cannot switch the wifi on, nor open Android's wifi panel: Chrome only lets pages
+  // open app screens marked for browsers. So the card shows where the switch is, and Chrome
+  // tells us when the phone joins a wifi, which opens the settings by itself.)
 
   // Opened from the home screen icon: straight to the meter, once per launch
   // (coming back to this page shows the menu instead of bouncing again).

@@ -149,8 +149,7 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   // this app, full screen. The first request may wait for that permission prompt.
   const TEST = /\/app-test\//.test(location.pathname);  // the test build shows what happened
   const log = [];
-  const note = m => { log.push(m); if (TEST) $('#dbgLog').textContent = log.join('
-'); };
+  const note = m => { log.push(m); if (TEST) $('#dbgLog').textContent = log.join(String.fromCharCode(10)); };
   const permState = async () => {
     for (const name of ['local-network-access', 'local-network']) {
       try { return name + ': ' + (await navigator.permissions.query({ name })).state; } catch (e) {}

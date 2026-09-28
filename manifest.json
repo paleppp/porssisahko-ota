@@ -1,8 +1,8 @@
 {
-  "version": "1.1.16",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.16.bin",
-  "sha256": "4bd09c18cd9af72bdcc82476046efe3dda7fee41dfead58fa62521ecf82ae91e",
-  "sig": "MEQCIFh1qjgkw2tOoGj8oHtJtOG70pUbpuQUrTepQfZ/wzxeAiBSnFDHBRucVxLrF6I+AD9lGmW42X4Z8FpxkEB84i14yA==",
-  "size": 1888928,
-  "notes": "Korjattu: asetussivun \"Lisää kotinäytölle\" -nappi ja sovelluksen asennustarjous jäivät joskus piiloon."
+  "version": "1.1.17",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.17.bin",
+  "sha256": "62168e47c40970bc5d4b5be0489377be48620d09ae9acdde4a25cd04d151b707",
+  "sig": "MEUCIGJY74orEeTtBJI5P2EBzJ1vdsIXcHTCmBY6YNJbpD9/AiEA8Ehlu6A+wqQ8OOt4+NirwBYYB2+bqKBx7eG7Gy4cfeI=",
+  "size": 1890208,
+  "notes": "Ohjelmistopäivitykset toimivat nyt myös heikolla wifi-yhteydellä: katkennut lataus jatkuu siitä, mihin se jäi.\nPäivityksen aikana asetussivun näyttökuva pysähtyy hetkeksi, jotta lataukselle riittää muistia."
 }

@@ -46,8 +46,8 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   </section>
 
   <section class="card" id="noWifi" hidden>
-    <h2>Puhelimen wifi on pois päältä</h2>
-    <p class="sub">Mittari löytyy vain kotisi wifin kautta. Kytke wifi päälle, niin asetukset aukeavat itsestään.</p>
+    <h2 id="nwTitle">Puhelimen wifi on pois päältä</h2>
+    <p class="sub" id="nwText">Mittari löytyy vain kotisi wifin kautta. Kytke wifi päälle, niin asetukset aukeavat itsestään.</p>
     <a class="btn pri" id="wifiBtn" href="intent:#Intent;action=android.settings.panel.action.WIFI;end">Kytke wifi päälle</a>
     <ol id="wifiHelp" hidden><li>Vedä sormella näytön yläreunasta alas.</li><li>Napauta <b>Wi-Fi</b>-kuvaketta, niin se muuttuu korostetuksi.</li><li>Palaa tähän sovellukseen.</li></ol>
   </section>
@@ -119,14 +119,28 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   // The meter is only reachable over the home wifi. Android Chrome tells whether the phone is on
   // wifi or mobile data; elsewhere (iPhone, computers) the type is unknown and we just try.
   const conn = navigator.connection;
-  const onWifi = () => !conn || !conn.type || !/^(cellular|none|bluetooth|wimax)$/.test(conn.type);
+  const known = !!(conn && conn.type);  // Chrome on Android; Firefox and iPhone do not tell
+  const onWifi = () => !known || !/^(cellular|none|bluetooth|wimax)$/.test(conn.type);
+  const android = /android/i.test(navigator.userAgent);
+  let going = false, panelOpened = false;
   const showMenu = () => {
+    going = false;
     $('#going').hidden = true;
-    $('#noWifi').hidden = onWifi() || !dev;
+    // wifi known off, or (type unknown) an attempt to open the meter already failed
+    const failed = !known && sessionStorage.getItem('went') === '1';
+    $('#noWifi').hidden = !dev || (known ? onWifi() : !failed);
+    if (!known) {
+      $('#nwTitle').textContent = 'Asetukset eivät auenneet?';
+      $('#nwText').textContent = 'Tarkista, että puhelimen wifi on päällä ja että olet samassa kotiverkossa kuin mittari. Kun wifi on päällä, asetukset aukeavat itsestään.';
+    }
+    $('#wifiBtn').hidden = !android;
+    if (!android) $('#wifiHelp').hidden = false;
     $('#noDev').hidden = !!dev;
     $('#open').hidden = $('#help').hidden = !dev;
   };
   const go = () => {
+    if (going) return;
+    going = true;
     sessionStorage.setItem('went', '1');
     $('#noWifi').hidden = true;
     $('#going').hidden = false;
@@ -143,7 +157,14 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   }
   $('#wifiBtn').addEventListener('click', () => {
     // the wifi panel opens on Android 10+; if nothing happened, show where the switch is
+    panelOpened = true;
     setTimeout(() => { if (document.visibilityState === 'visible') $('#wifiHelp').hidden = false; }, 1500);
+  });
+  // back from the wifi panel: give the phone a moment to join the home wifi, then try again
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !panelOpened || !dev) return;
+    panelOpened = false;
+    if (onWifi()) setTimeout(go, 3000);
   });
 
   // Opened from the home screen icon: straight to the meter, once per launch

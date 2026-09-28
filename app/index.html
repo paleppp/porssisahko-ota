@@ -126,12 +126,14 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   const showMenu = () => {
     going = false;
     $('#going').hidden = true;
-    // wifi known off, or (type unknown) an attempt to open the meter already failed
-    const failed = !known && sessionStorage.getItem('went') === '1';
-    $('#noWifi').hidden = !dev || (known ? onWifi() : !failed);
-    if (!known) {
-      $('#nwTitle').textContent = 'Asetukset eivät auenneet?';
-      $('#nwText').textContent = 'Tarkista, että puhelimen wifi on päällä ja että olet samassa kotiverkossa kuin mittari. Kun wifi on päällä, asetukset aukeavat itsestään.';
+    // Chrome: the card only when wifi is off. Other browsers cannot tell, so the card is always
+    // there, below the open button, as a reminder with the switch at hand.
+    $('#noWifi').hidden = !dev || (known && onWifi());
+    if (!known && dev) {
+      $('#open').after($('#noWifi'));
+      $('#nwTitle').textContent = 'Onko puhelimen wifi päällä?';
+      $('#nwText').textContent = 'Mittarin asetukset aukeavat vain kotisi wifissä. Jos wifi on pois, kytke se ensin päälle, niin asetukset aukeavat itsestään.';
+      $('#wifiBtn').className = 'btn sec';
     }
     $('#wifiBtn').hidden = !android;
     if (!android) $('#wifiHelp').hidden = false;
@@ -169,7 +171,9 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
 
   // Opened from the home screen icon: straight to the meter, once per launch
   // (coming back to this page shows the menu instead of bouncing again).
-  if (standalone && url && !sessionStorage.getItem('went')) {
+  // (only where the browser tells that the phone is on wifi: elsewhere a failed attempt ends on
+  // the browser's own error page, which a senior cannot get back from)
+  if (standalone && url && known && !sessionStorage.getItem('went')) {
     if (onWifi()) go();
     else showMenu();
   } else {

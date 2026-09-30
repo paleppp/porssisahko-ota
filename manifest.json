@@ -1,8 +1,8 @@
 {
-  "version": "1.1.18",
-  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.18.bin",
-  "sha256": "fc33689cb71844bc8773c1423ce879004ea36fdd831a996450173574cc28252e",
-  "sig": "MEQCIB6nMPdQiiKyy/TQxObA5y73mW3yMVJJyxXzbYeJVl6XAiBYoQLXO6mm8FqB42uuijjiGXpzMejLKrlyX2GylY5YzQ==",
-  "size": 1891984,
-  "notes": "Ohjelmistopäivitykset menevät nyt läpi myös heikolla wifillä: jos lataus katkeaa, laite käynnistyy uudelleen ja jatkaa latausta siitä, mihin se jäi. Ladattu ohjelmisto tarkistetaan lopuksi kokonaisuudessaan ennen käyttöönottoa.\nKorjattu: päivitys saattoi epäonnistua heti alkuunsa muistin puutteeseen."
+  "version": "1.1.19",
+  "url": "https://raw.githubusercontent.com/paleppp/porssisahko-ota/main/firmware/porssisahko-1.1.19.bin",
+  "sha256": "cf82c847c6b8f57e955e9f06b7f5c57c73eafe812b4e1df5fcaf3843ce68955b",
+  "sig": "MEYCIQCOvC01ot2ZKL/JoFfb269NrJu2esuFH6hMhl3KwOjBcAIhANDsD30nb6bMQpUGgGOCTaJ5EZ8hTQMa+Nwfy2w1dgJd",
+  "size": 1892528,
+  "notes": "Asetussivulle teemavalinta: Järjestelmä, Vaalea tai Tumma (Asetukset › Laite). Valinta koskee vain omaa puhelinta."
 }

@@ -104,14 +104,26 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   const validIp = s => /^(\d{1,3})(\.\d{1,3}){3}$/.test(s || '') && s.split('.').every(n => +n <= 255);
   const validHost = s => /^[a-z0-9-]{1,32}$/.test(s || '');
 
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   // The meter's QR code carries its address in the #hash, which never leaves the phone.
+  // iPhone: an app added to the home screen gets storage of its own and starts from the URL it was
+  // added with, so there the address travels in that URL (?d=ip,name) instead.
   let dev = load();
   const hp = new URLSearchParams(location.hash.slice(1));
-  if (validIp(hp.get('ip'))) {
-    dev = { ip: hp.get('ip'), host: validHost(hp.get('h')) ? hp.get('h') : 'porssi', mode: dev && dev.mode, at: Date.now() };
+  const qd = (new URLSearchParams(location.search).get('d') || '').split(',');
+  const got = validIp(hp.get('ip')) ? [hp.get('ip'), hp.get('h')] : validIp(qd[0]) ? [qd[0], qd[1]] : null;
+  if (got) {
+    dev = { ip: got[0], host: validHost(got[1]) ? got[1] : 'porssi', mode: dev && dev.mode, at: Date.now() };
     save(dev);
   }
-  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  if (ios && dev) {
+    // without a manifest Safari keeps this very URL (with the address) for the home screen icon
+    const man = document.querySelector('link[rel="manifest"]');
+    if (man) man.remove();
+    history.replaceState(null, '', location.pathname + '?d=' + dev.ip + ',' + dev.host);
+  } else if (location.hash) {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
 
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   // The meter's name (porssi.local) never changes, so it is the default; the number address is the
@@ -239,7 +251,6 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   if (standalone) return;
 
   // Offer the home screen icon: Android/Chrome gives a one-tap install, iPhone needs the Share menu.
-  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   $('#install').hidden = !dev;
   let deferred = null;
   if (ios) $('#iosHelp').hidden = false;

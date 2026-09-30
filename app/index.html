@@ -124,6 +124,10 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   } else if (location.hash) {
     history.replaceState(null, '', location.pathname + location.search);
   }
+  // Not told which meter (e.g. an iPhone web app, which starts with empty storage from the
+  // manifest's start URL): the default name. It resolves on the home wifi on every iPhone and
+  // on Android 12+, so the settings open without scanning anything.
+  if (!dev) dev = { ip: null, host: 'porssi', guess: true };
 
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   // The meter's name (porssi.local) never changes, so it is the default; the number address is the
@@ -131,9 +135,9 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   // Whichever the user last opened successfully by hand is used from then on.
   // ?app=1 tells the meter's page it was opened from here (it then hides its own install button).
   const nameUrl = dev ? 'http://' + dev.host + '.local/?app=1' : null;
-  const ipUrl = dev ? 'http://' + dev.ip + '/?app=1' : null;
-  const url = dev ? (dev.mode === 'ip' ? ipUrl : nameUrl) : null;
-  const remember = mode => { if (dev) { dev.mode = mode; save(dev); } };
+  const ipUrl = dev && dev.ip ? 'http://' + dev.ip + '/?app=1' : null;
+  const url = dev ? (dev.mode === 'ip' && ipUrl ? ipUrl : nameUrl) : null;
+  const remember = mode => { if (dev && !dev.guess) { dev.mode = mode; save(dev); } };
 
   // The meter is only reachable over the home wifi. Android Chrome tells whether the phone is on
   // wifi or mobile data; elsewhere (iPhone, computers) the type is unknown and we just try.
@@ -189,7 +193,7 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
     $('#going').hidden = false;
     const name = 'http://' + dev.host + '.local', ip = 'http://' + dev.ip;
     const mode = prefer || dev.mode || 'name';
-    const tries = mode === 'ip' ? [[ip, 'ip'], [name, 'name']] : [[name, 'name'], [ip, 'ip']];
+    const tries = (mode === 'ip' ? [[ip, 'ip'], [name, 'name']] : [[name, 'name'], [ip, 'ip']]).filter(t => t[1] === 'name' || dev.ip);
     const perm = await permState();
     note('Chrome ' + ((navigator.userAgent.match(/Chrome\/(\d+)/) || [])[1] || '?') + ' · ' + perm);
     // until the permission is decided, a request may wait for the prompt: give it a minute
@@ -206,13 +210,13 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
     if (TEST) {  // stay here and show the log instead of falling back
       $('#going').hidden = true;
       $('#dbg').hidden = false;
-      $('#dbgOld').href = mode === 'ip' ? ipUrl : nameUrl;
+      $('#dbgOld').href = mode === 'ip' && ipUrl ? ipUrl : nameUrl;
       going = false;
       return;
     }
     // no direct access (other browsers, permission refused, older meter software): the meter's
     // own page in the browser, as before. href, not replace: Back returns here if it fails.
-    location.href = mode === 'ip' ? ipUrl : nameUrl;
+    location.href = mode === 'ip' && ipUrl ? ipUrl : nameUrl;
     setTimeout(showMenu, 7000);
   };
   window.addEventListener('pageshow', e => { if (e.persisted) showMenu(); });  // back from a failed attempt
@@ -241,10 +245,14 @@ code{font-size:15px;background:#0b0e12;border-radius:6px;padding:1px 6px}
   if (dev) {
     $('#openBtn').href = nameUrl;
     $('#openBtn').addEventListener('click', e => { e.preventDefault(); remember('name'); go('name'); });
-    $('#localBtn').href = ipUrl;
-    $('#localBtn').textContent = 'Avaa numero-osoitteella ' + dev.ip;
-    $('#localBtn').addEventListener('click', e => { e.preventDefault(); remember('ip'); go('ip'); });
-    $('#devAddr').textContent = dev.host + '.local  ·  ' + dev.ip;
+    if (ipUrl) {
+      $('#localBtn').href = ipUrl;
+      $('#localBtn').textContent = 'Avaa numero-osoitteella ' + dev.ip;
+      $('#localBtn').addEventListener('click', e => { e.preventDefault(); remember('ip'); go('ip'); });
+    } else {
+      $('#localBtn').hidden = true;
+    }
+    $('#devAddr').textContent = dev.host + '.local' + (dev.ip ? '  ·  ' + dev.ip : '');
   }
 
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

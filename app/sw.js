@@ -1,5 +1,5 @@
 // Keeps the launcher itself available offline; the meter's own pages are never cached here.
-const CACHE = 'porssinaytto-v9';
+const CACHE = 'porssinaytto-v10';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'icon-180.png', 'settings.html'];
 
 self.addEventListener('install', e => {
